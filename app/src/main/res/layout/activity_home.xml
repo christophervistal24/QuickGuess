@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/drawerLayout">
+
+
+
+        <!--<com.airbnb.lottie.LottieAnimationView-->
+            <!--android:id="@+id/animation_view"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--app:lottie_autoPlay="true"-->
+            <!--app:lottie_fileName="clock.json"-->
+            <!--app:lottie_loop="true" />-->
+
+        <!--/>-->
+
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_marginBottom="219dp"-->
+        <!--android:gravity="center"-->
+        <!--android:text="Quick Guess"-->
+        <!--android:textSize="25dp" />-->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical" >
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="First"
+            android:onClick="firstActivity"
+            android:id="@+id/btnFirst"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Categories"
+            android:onClick="categories"
+            android:id="@+id/btnCategory"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Accounts"
+            android:onClick="accounts"
+            android:id="@+id/btnThird"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rankings"
+            android:onClick="rankings"
+            android:id="@+id/btnFourth"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Fifth"
+            android:onClick="fifthActivity"
+            android:id="@+id/btnFifth"/>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CategoryQuestion">
+
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="vertical"-->
+        <!--android:visibility="invisible">-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/questionResult"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/questionFunFacts"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
+    <!--</LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/questionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/timerCountDown"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/questionId"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/question"/>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/RGroup">
+
+            <RadioButton android:id="@+id/choice_a"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="getSelected"
+                />
+
+            <RadioButton android:id="@+id/choice_b"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="getSelected"
+
+                />
+
+            <RadioButton android:id="@+id/choice_c"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="getSelected"
+
+                />
+
+            <RadioButton android:id="@+id/choice_d"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="getSelected"
+                />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+
+</LinearLayout>

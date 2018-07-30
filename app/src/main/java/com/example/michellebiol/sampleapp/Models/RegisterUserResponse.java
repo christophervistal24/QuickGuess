@@ -32,18 +32,18 @@ public class RegisterUserResponse {
             return username;
         }
 
-//        public void setUsername(String username) {
-//            this.username = username;
-//    }
+        public void setUsername(String username) {
+            this.username = username;
+    }
 
 
     public String getMessage() {
         return message;
     }
 
-//    public void setMessage(String message) {
-//        this.message = message;
-//    }
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public String getToken_type() {
         return token_type;

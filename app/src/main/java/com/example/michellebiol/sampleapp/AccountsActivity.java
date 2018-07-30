@@ -29,6 +29,8 @@ import com.example.michellebiol.sampleapp.Models.AccountsResponse;
 import com.example.michellebiol.sampleapp.Models.CategoriesResponse;
 import com.example.michellebiol.sampleapp.Models.QuestionsItem;
 import com.example.michellebiol.sampleapp.Models.QuestionsResponse;
+import com.google.zxing.common.StringUtils;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +56,7 @@ public class AccountsActivity extends AppCompatActivity implements IPhoneInfo {
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //check if the phone_id from database and the current_db is equal
 
         getPhoneAccounts();
     }
@@ -89,7 +92,8 @@ public class AccountsActivity extends AppCompatActivity implements IPhoneInfo {
                 {
 
                     AccountsItem accountsItem = new AccountsItem(
-                            a.getUser().getUsername().substring(0,1).toUpperCase() + a.getUser().getUsername().substring(1).toLowerCase()
+                            a.getUser().getUsername() , a.getUser().getId()
+
                     );
                     accountsItems.add(accountsItem);
                 }
@@ -104,5 +108,15 @@ public class AccountsActivity extends AppCompatActivity implements IPhoneInfo {
             }
         });
 
+    }
+
+    public static String upperCaseFirst(String value) {
+
+        // Convert String to char array.
+        char[] array = value.toCharArray();
+        // Modify first element in array.
+        array[0] = Character.toUpperCase(array[0]);
+        // Return string.
+        return new String(array);
     }
 }

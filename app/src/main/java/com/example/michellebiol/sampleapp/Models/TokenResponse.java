@@ -19,6 +19,10 @@ public class TokenResponse {
     @Expose
     private String refresh_token;
 
+    @SerializedName("id")
+    @Expose
+    private String id;
+
 
 
     //GETTERS
@@ -45,6 +49,11 @@ public class TokenResponse {
     public String getToken_type() { return token_type; }
 
     public void setToken_type(String token_type) { this.token_type = token_type; }
+
+    public String getId() {
+        return id;
+    }
+
 }
 
 

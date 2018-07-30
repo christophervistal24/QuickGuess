@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.michellebiol.sampleapp.Detector.ConnectionDetector;
 import com.example.michellebiol.sampleapp.Dialogs.PlayerNameDialog;
 import com.example.michellebiol.sampleapp.Interfaces.IPhoneInfo;
 import com.example.michellebiol.sampleapp.Interfaces.IRegisterUserApi;
@@ -32,6 +35,8 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
 
     private Button btnCategory;
     IRegisterUserApi services;
+    ConnectionDetector detector;
+
 
 
 
@@ -47,15 +52,23 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         services = retrofit.create(IRegisterUserApi.class);
-
-
+        detector =  new ConnectionDetector(this);
+        detector.checkConnection();
     }
 
     @Override
     protected void onResume()
     {
+        if(detector.checkConnection())
+        {
+            Toast.makeText(this, "User is connected", Toast.LENGTH_SHORT).show();
+        } else
+        {
+            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+        }
         super.onResume();
         hideNavigationBar();
+
     }
 
     private void hideNavigationBar() {
@@ -148,14 +161,14 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         }
     }
 
-    private void setToken(String[] value)
+    public void setToken(String[] value)
     {
         SharedPreferences sharedPref = getSharedPreferences("tokens",Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("token",value[0]);
         editor.putString("token_type",value[1]);
-        editor.putString("user_id","");
+        editor.putString("user_id",value[2]);
         editor.apply();
     }
 
@@ -176,5 +189,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         return new String[]{Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID) , wm.getConnectionInfo().getMacAddress()};
     }
+
+
 
 }

@@ -62,7 +62,7 @@ public class PlayerNameDialog extends AppCompatDialogFragment{
 
         builder.setView(view)
                 .setTitle("Player name")
-                .setNegativeButton("Accounts", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Access my accounts", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Intent intent  = new Intent(getContext(),AccountsActivity.class);

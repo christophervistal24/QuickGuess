@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.michellebiol.sampleapp.AccountsActivity;
 import com.example.michellebiol.sampleapp.CategoryQuestion;
 import com.example.michellebiol.sampleapp.Models.CategoriesItem;
 import com.example.michellebiol.sampleapp.R;
@@ -19,6 +20,7 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
 
     private List<CategoriesItem> categoriesItems;
     private Context context;
+    AccountsActivity accountsActivity;
 
     public CategoriesAdapter(List<CategoriesItem> categoriesItems, Context context) {
         this.categoriesItems = categoriesItems;
@@ -37,8 +39,8 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
         final CategoriesItem categoriesItem = categoriesItems.get(position);
         holder.textViewId.setText(categoriesItem.getId());
-        holder.textViewHead.setText(categoriesItem.getHead());
-        holder.textViewDesc.setText(categoriesItem.getDesc());
+        holder.textViewHead.setText(accountsActivity.upperCaseFirst(categoriesItem.getHead()));
+        holder.textViewDesc.setText(accountsActivity.upperCaseFirst(categoriesItem.getDesc()));
         holder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

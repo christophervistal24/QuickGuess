@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -25,10 +27,18 @@ import com.example.michellebiol.sampleapp.Models.AnswerRequest;
 import com.example.michellebiol.sampleapp.Models.AnswerResponse;
 import com.example.michellebiol.sampleapp.Models.QuestionsItem;
 import com.example.michellebiol.sampleapp.Models.QuestionsResponse;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.share.Sharer;
+import com.facebook.share.model.ShareHashtag;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,15 +51,19 @@ public class CategoryQuestion extends AppCompatActivity {
     private RecyclerView questionRecyclerView;
     private RecyclerView.Adapter adapter;
     private List<QuestionsItem> questionsItems;
-    private static final int counter = 21;
+    private static final long counter = 21000;
     CountDownTimer countDownTimer;
     IQuestionByCategoryApi service;
     IAnswerApi answerService;
-    TextView questionId , question , timerCountDown;
+    TextView questionId , question , timerCountDown , questionResult , questionFunFacts;
     RadioGroup RGroup;
     RadioButton choice_a ,choice_b , choice_c , choice_d , radioButton;
     private long mLastClickTime = 0;
     private String correctAnswer , funFacts;
+    private LinearLayout displayResult , questionLayout;
+    Button btnNext,btnShareOnFB;
+    CallbackManager callbackManager;
+    ShareDialog shareDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +72,23 @@ public class CategoryQuestion extends AppCompatActivity {
 
         questionId = (TextView) findViewById(R.id.questionId);
         question = (TextView) findViewById(R.id.question);
+        questionResult = (TextView) findViewById(R.id.questionResult);
+        questionFunFacts = (TextView) findViewById(R.id.questionFunFacts);
+        timerCountDown = (TextView) findViewById(R.id.timerCountDown);
+
         choice_a = (RadioButton) findViewById(R.id.choice_a);
         choice_b = (RadioButton) findViewById(R.id.choice_b);
         choice_c = (RadioButton) findViewById(R.id.choice_c);
         choice_d = (RadioButton) findViewById(R.id.choice_d);
         RGroup = (RadioGroup) findViewById(R.id.RGroup);
-        timerCountDown = (TextView) findViewById(R.id.timerCountDown);
+
+        displayResult = (LinearLayout) findViewById(R.id.displayResult);
+        questionLayout = (LinearLayout) findViewById(R.id.questionLayout);
+
+        btnNext = (Button) findViewById(R.id.btnNext);
+        btnShareOnFB = (Button) findViewById(R.id.btnShareOnFB);
+
+
 
         //initialize retrofit for answer api
         Retrofit retrofit = new Retrofit.Builder()
@@ -71,6 +96,60 @@ public class CategoryQuestion extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         answerService = retrofit.create(IAnswerApi.class);
+
+        //Init FB
+        callbackManager = CallbackManager.Factory.create();
+        shareDialog = new ShareDialog(this);
+
+        btnShareOnFB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnShareOnFB.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
+                            @Override
+                            public void onSuccess(Sharer.Result result) {
+                                Toast.makeText(CategoryQuestion.this, "Successfully share!", Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                Toast.makeText(CategoryQuestion.this, "Share cancel", Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+
+                            @Override
+                            public void onError(FacebookException error) {
+                                Toast.makeText(CategoryQuestion.this, error.getMessage(), Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        });
+
+                        ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                                .setQuote("We are still working on it.")
+                                .setContentUrl(Uri.parse("https://quick-guess.herokuapp.com/"))
+                                .setShareHashtag(new ShareHashtag.Builder()
+                                        .setHashtag("#Quick-Guess Fun Facts")
+                                        .build())
+                                .build();
+
+                        if (ShareDialog.canShow(ShareLinkContent.class))
+                        {
+                            shareDialog.show(linkContent);
+                        }
+                    }
+                });
+            }
+        });
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayNewQuestion();
+            }
+        });
     }
 
 
@@ -166,6 +245,7 @@ public class CategoryQuestion extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        countDownTimer.cancel();
         super.onBackPressed();
     }
 
@@ -187,7 +267,7 @@ public class CategoryQuestion extends AppCompatActivity {
             };
             int n = arr.length;
             String[] shuffledChoices = randomize(arr,n);
-
+            startTimer(counter);
             questionId.setText(randQuestion.getId());
             question.setText(randQuestion.getQuest());
             correctAnswer = randQuestion.getCorrect_answer();
@@ -210,9 +290,38 @@ public class CategoryQuestion extends AppCompatActivity {
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        radioButton = findViewById(R.id.choice_d);
-        isCorrect(radioButton.getText().toString());
+        int selectedId = RGroup.getCheckedRadioButtonId();
+        radioButton = findViewById(selectedId);
+        countDownTimer.cancel();
+        RGroup.clearCheck();
+        displayResult(isCorrect(radioButton.getText().toString()));
+    }
+
+    private void displayResult(String correctOrWrong) {
+        questionLayout.setVisibility(View.INVISIBLE);
+        questionResult.setText("Result : " + correctOrWrong);
+        questionFunFacts.setText("Fun facts : " + funFacts);
+        displayResult.setVisibility(View.VISIBLE);
+    }
+
+    private void displayNewQuestion() {
         getQuestions();
+        questionLayout.setVisibility(View.VISIBLE);
+        displayResult.setVisibility(View.INVISIBLE);
+    }
+
+    private void timesUpCheck(RadioGroup RGroup)
+    {
+        int selectedId = RGroup.getCheckedRadioButtonId();
+        radioButton = findViewById(selectedId);
+        String getResult = null;
+        if(selectedId <= -1) {
+            getResult = isCorrect("No Answer");
+        } else {
+            getResult = isCorrect(radioButton.getText().toString());
+
+        }
+        displayResult(getResult);
         RGroup.clearCheck();
     }
 
@@ -245,18 +354,41 @@ public class CategoryQuestion extends AppCompatActivity {
     //check if correct or not
     private String isCorrect(String selectedAnswer)
     {
-
         String result = null;
-        if(selectedAnswer.equals(correctAnswer))
+        if(selectedAnswer.equals(correctAnswer.trim()))
         {
             result = "Correct";
+            sendAnswer(questionId.getText().toString(),result);
         }
         else
         {
             result = "Wrong";
         }
-            sendAnswer(questionId.getText().toString(),"correct");
-            return result;
+        return result;
+    }
+
+
+    private  void startTimer(final long counter) {
+
+        countDownTimer = new CountDownTimer(counter, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+            timerCountDown.setText(
+                    String.format("%02d",
+                  TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))) );
+
+            }
+
+            @Override
+            public void onFinish() {
+                //check if answer is correct or wrong
+                //display fun facts or display another layout
+                timesUpCheck(RGroup);
+            }
+        };
+
+        countDownTimer.start();
     }
 
 

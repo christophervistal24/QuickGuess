@@ -23,10 +23,12 @@ import android.widget.Toast;
 import com.example.michellebiol.sampleapp.Adapters.QuestionsAdapter;
 import com.example.michellebiol.sampleapp.Interfaces.IAnswerApi;
 import com.example.michellebiol.sampleapp.Interfaces.IQuestionByCategoryApi;
+import com.example.michellebiol.sampleapp.LifeModule.Life;
 import com.example.michellebiol.sampleapp.Models.AnswerRequest;
 import com.example.michellebiol.sampleapp.Models.AnswerResponse;
 import com.example.michellebiol.sampleapp.Models.QuestionsItem;
 import com.example.michellebiol.sampleapp.Models.QuestionsResponse;
+import com.example.michellebiol.sampleapp.PointModule.Points;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -55,7 +57,7 @@ public class CategoryQuestion extends AppCompatActivity {
     CountDownTimer countDownTimer;
     IQuestionByCategoryApi service;
     IAnswerApi answerService;
-    TextView questionId , question , timerCountDown , questionResult , questionFunFacts;
+    TextView questionId , question , timerCountDown , questionResult , questionFunFacts , userCurrentLife;
     RadioGroup RGroup;
     RadioButton choice_a ,choice_b , choice_c , choice_d , radioButton;
     private long mLastClickTime = 0;
@@ -64,7 +66,10 @@ public class CategoryQuestion extends AppCompatActivity {
     Button btnNext,btnShareOnFB;
     CallbackManager callbackManager;
     ShareDialog shareDialog;
-
+    Life life;
+    Points p;
+    boolean isCounterRunning;
+    private int userPoints = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,19 +80,20 @@ public class CategoryQuestion extends AppCompatActivity {
         questionResult = (TextView) findViewById(R.id.questionResult);
         questionFunFacts = (TextView) findViewById(R.id.questionFunFacts);
         timerCountDown = (TextView) findViewById(R.id.timerCountDown);
+        userCurrentLife = (TextView) findViewById(R.id.userCurrentLife);
 
         choice_a = (RadioButton) findViewById(R.id.choice_a);
         choice_b = (RadioButton) findViewById(R.id.choice_b);
         choice_c = (RadioButton) findViewById(R.id.choice_c);
         choice_d = (RadioButton) findViewById(R.id.choice_d);
         RGroup = (RadioGroup) findViewById(R.id.RGroup);
-
         displayResult = (LinearLayout) findViewById(R.id.displayResult);
         questionLayout = (LinearLayout) findViewById(R.id.questionLayout);
 
         btnNext = (Button) findViewById(R.id.btnNext);
         btnShareOnFB = (Button) findViewById(R.id.btnShareOnFB);
-
+        life = new Life(this);
+        p = new Points();
 
 
         //initialize retrofit for answer api
@@ -100,6 +106,9 @@ public class CategoryQuestion extends AppCompatActivity {
         //Init FB
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);
+
+        //trigger for counter or timer
+        isCounterRunning = false;
 
         btnShareOnFB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +156,7 @@ public class CategoryQuestion extends AppCompatActivity {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                countDownTimer.start();
                 displayNewQuestion();
             }
         });
@@ -268,6 +278,7 @@ public class CategoryQuestion extends AppCompatActivity {
             int n = arr.length;
             String[] shuffledChoices = randomize(arr,n);
             startTimer(counter);
+            userCurrentLife.setText(life.setUserLife());
             questionId.setText(randQuestion.getId());
             question.setText(randQuestion.getQuest());
             correctAnswer = randQuestion.getCorrect_answer();
@@ -302,10 +313,11 @@ public class CategoryQuestion extends AppCompatActivity {
         questionResult.setText("Result : " + correctOrWrong);
         questionFunFacts.setText("Fun facts : " + funFacts);
         displayResult.setVisibility(View.VISIBLE);
+        getQuestions();
+        Toast.makeText(this, "Points : " + String.valueOf(p.getPoints()), Toast.LENGTH_SHORT).show();
     }
 
     private void displayNewQuestion() {
-        getQuestions();
         questionLayout.setVisibility(View.VISIBLE);
         displayResult.setVisibility(View.INVISIBLE);
     }
@@ -317,10 +329,12 @@ public class CategoryQuestion extends AppCompatActivity {
         String getResult = null;
         if(selectedId <= -1) {
             getResult = isCorrect("No Answer");
+            Toast.makeText(this, "Message Result : " + life.questionResult(getResult,userCurrentLife.getText().toString()), Toast.LENGTH_SHORT).show();
         } else {
             getResult = isCorrect(radioButton.getText().toString());
 
         }
+        countDownTimer.cancel();
         displayResult(getResult);
         RGroup.clearCheck();
     }
@@ -358,11 +372,13 @@ public class CategoryQuestion extends AppCompatActivity {
         if(selectedAnswer.equals(correctAnswer.trim()))
         {
             result = "Correct";
+            p.setPoints(userPoints++);
             sendAnswer(questionId.getText().toString(),result);
         }
         else
         {
             result = "Wrong";
+            Toast.makeText(this, "Message Result : " + life.questionResult(result,userCurrentLife.getText().toString()), Toast.LENGTH_SHORT).show();
         }
         return result;
     }
@@ -370,30 +386,30 @@ public class CategoryQuestion extends AppCompatActivity {
 
     private  void startTimer(final long counter) {
 
-        countDownTimer = new CountDownTimer(counter, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-            timerCountDown.setText(
-                    String.format("%02d",
-                  TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))) );
+       if (!isCounterRunning) {
+           isCounterRunning  = true;
+           countDownTimer = new CountDownTimer(counter, 1000) {
+               @Override
+               public void onTick(long millisUntilFinished) {
+                   timerCountDown.setText(
+                           String.format("%02d",
+                                   TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
+                                           TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
 
-            }
+               }
 
-            @Override
-            public void onFinish() {
-                //check if answer is correct or wrong
-                //display fun facts or display another layout
-                timesUpCheck(RGroup);
-            }
-        };
-
-        countDownTimer.start();
-    }
-
-
-
-
+               @Override
+               public void onFinish() {
+                   isCounterRunning = false;
+                   timesUpCheck(RGroup);
+               }
+           };
+           countDownTimer.start();
+       } else {
+           countDownTimer.cancel();
+           countDownTimer.start();
+       }
+   }
 
 
 

@@ -1,27 +1,25 @@
 package com.example.michellebiol.sampleapp;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.provider.Settings;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.Detector.ConnectionDetector;
 import com.example.michellebiol.sampleapp.Dialogs.PlayerNameDialog;
 import com.example.michellebiol.sampleapp.Interfaces.IPhoneInfo;
 import com.example.michellebiol.sampleapp.Interfaces.IRegisterUserApi;
+import com.example.michellebiol.sampleapp.LifeModule.Life;
 import com.example.michellebiol.sampleapp.Models.RegisterUserRequest;
 import com.example.michellebiol.sampleapp.Models.RegisterUserResponse;
 
@@ -34,8 +32,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo{
 
     private Button btnCategory;
+    TextView userLife;
     IRegisterUserApi services;
     ConnectionDetector detector;
+    Life life;
 
 
 
@@ -46,14 +46,17 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         setContentView(R.layout.activity_home);
         hideNavigationBar();
         btnCategory = (Button) findViewById(R.id.btnCategory);
+        userLife = (TextView) findViewById(R.id.userLife);
         isTokenAlreadySet();
+        life = new Life(this);
+        detector =  new ConnectionDetector(this);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.user_api_url))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         services = retrofit.create(IRegisterUserApi.class);
-        detector =  new ConnectionDetector(this);
         detector.checkConnection();
+        userLife.setText("Your life : " + (life.setUserLife() ));
     }
 
     @Override

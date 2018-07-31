@@ -34,6 +34,12 @@
         android:layout_centerInParent="true"
         android:orientation="vertical" >
 
+        <TextView
+            android:id="@+id/userLife"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+        />
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

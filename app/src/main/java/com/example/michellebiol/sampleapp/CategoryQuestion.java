@@ -70,6 +70,7 @@ public class CategoryQuestion extends AppCompatActivity {
     Points p;
     boolean isCounterRunning;
     private int userPoints = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +94,7 @@ public class CategoryQuestion extends AppCompatActivity {
         btnNext = (Button) findViewById(R.id.btnNext);
         btnShareOnFB = (Button) findViewById(R.id.btnShareOnFB);
         life = new Life(this);
-        p = new Points();
+        p = new Points(this);
 
 
         //initialize retrofit for answer api
@@ -315,6 +316,7 @@ public class CategoryQuestion extends AppCompatActivity {
         displayResult.setVisibility(View.VISIBLE);
         getQuestions();
         Toast.makeText(this, "Points : " + String.valueOf(p.getPoints()), Toast.LENGTH_SHORT).show();
+
     }
 
     private void displayNewQuestion() {
@@ -372,13 +374,16 @@ public class CategoryQuestion extends AppCompatActivity {
         if(selectedAnswer.equals(correctAnswer.trim()))
         {
             result = "Correct";
-            p.setPoints(userPoints++);
+            p.setPoints(++userPoints);
             sendAnswer(questionId.getText().toString(),result);
         }
         else
         {
             result = "Wrong";
-            Toast.makeText(this, "Message Result : " + life.questionResult(result,userCurrentLife.getText().toString()), Toast.LENGTH_SHORT).show();
+            if( life.questionResult(result,userCurrentLife.getText().toString()).equals("Game over")) {
+                p.insertPoints(p.getPoints());
+                userPoints = 0;
+            }
         }
         return result;
     }

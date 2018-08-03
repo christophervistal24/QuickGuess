@@ -47,12 +47,24 @@
             android:onClick="firstActivity"
             android:id="@+id/btnFirst"/>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Categories"
-            android:onClick="categories"
-            android:id="@+id/btnCategory"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="35dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="60dp"
+                    android:onClick="categories"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/categories_btn"
+                    android:scaleType="centerCrop"
+                    android:id="@+id/btnCategory"/>
+
+
+            </LinearLayout>
 
         <Button
             android:layout_width="match_parent"

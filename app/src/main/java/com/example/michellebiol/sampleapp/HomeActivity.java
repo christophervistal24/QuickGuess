@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +32,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo{
 
-    private Button btnCategory;
+    private ImageButton btnCategory;
     TextView userLife;
     IRegisterUserApi services;
     ConnectionDetector detector;
@@ -45,7 +46,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         hideNavigationBar();
-        btnCategory = (Button) findViewById(R.id.btnCategory);
+        btnCategory = (ImageButton) findViewById(R.id.btnCategory);
         userLife = (TextView) findViewById(R.id.userLife);
         isTokenAlreadySet();
         life = new Life(this);
@@ -65,6 +66,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         if(detector.checkConnection())
         {
             Toast.makeText(this, "User is connected", Toast.LENGTH_SHORT).show();
+            userLife.setText("Your life : " + (life.setUserLife() ));
         } else
         {
             Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();

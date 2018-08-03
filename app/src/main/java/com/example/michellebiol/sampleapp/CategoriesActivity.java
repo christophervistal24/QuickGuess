@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.Interfaces.ICategoriesApi;
 import com.example.michellebiol.sampleapp.Adapters.CategoriesAdapter;
+import com.example.michellebiol.sampleapp.LifeModule.Life;
 import com.example.michellebiol.sampleapp.Models.CategoriesItem;
 import com.example.michellebiol.sampleapp.Models.CategoriesResponse;
 
@@ -42,7 +43,6 @@ public class CategoriesActivity extends AppCompatActivity {
 
         sampleGetCategories();
     }
-
 
     private void sampleGetCategories()
     {

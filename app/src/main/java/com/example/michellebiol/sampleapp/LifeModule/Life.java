@@ -12,17 +12,18 @@ public class Life {
     private Context context;
     private SharedPreferences sharedPref;
     private String messageResult;
-    Points p;
+    private Points p;
 
     public Life(Context context) {
         sharedPref = context.getSharedPreferences("user_life", Context.MODE_PRIVATE);
         this.context = context;
-        p = new Points();
+        p = new Points(context);
     }
 
 
     public boolean isGameOver(int playersLife)
     {
+        CategoryQuestion categoryQuestion;
         return playersLife == 1;
     }
 
@@ -42,8 +43,7 @@ public class Life {
             SharedPreferences.Editor sEditor = sharedPref.edit();
             sEditor.putString("user_life",String.valueOf(this.LIFE));
             sEditor.apply();
-            //insert to db with points
-             return "Game over";
+           return "Game over";
        } else {
             playersLife--;
             context.getSharedPreferences("user_life", Context.MODE_PRIVATE);

@@ -55,8 +55,6 @@ public class Points {
                 if  (response.isSuccessful())
                 {
                     PointsResponse pointsResponse = response.body();
-                    if (pointsResponse != null) {
-                    }
                 }
             }
 

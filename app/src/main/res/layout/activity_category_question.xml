@@ -1,108 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    tools:context=".CategoryQuestion">
-
-
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="countdown"
+            type="com.example.michellebiol.sampleapp.TimerModule.CountDown">
+        </variable>
+    </data>
     <LinearLayout
-        android:id="@+id/displayResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="invisible">
+        tools:context=".CategoryQuestion">
 
-        <TextView
-            android:id="@+id/questionResult"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/questionFunFacts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/btnNext"
+        <LinearLayout
+            android:id="@+id/displayResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Next Question"
-            />
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-        <Button
-            android:id="@+id/btnShareOnFB"
+            <TextView
+                android:id="@+id/questionResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/questionFunFacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Next Question"
+                />
+
+            <Button
+                android:id="@+id/btnShareOnFB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Share on Facebook"
+                />
+
+r
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/questionLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Share on Facebook"
-            />
+            android:orientation="vertical"
+            >
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="30sp"
+                android:gravity="center"
+                android:text="@={countdown.timer}"
+                />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/userCurrentLife"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/questionId"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/question"/>
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/RGroup">
+
+                <RadioButton android:id="@+id/choice_a"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="getSelected"
+                    />
+
+                <RadioButton android:id="@+id/choice_b"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="getSelected"
+
+                    />
+
+                <RadioButton android:id="@+id/choice_c"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="getSelected"
+
+                    />
+
+                <RadioButton android:id="@+id/choice_d"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="getSelected"
+                    />
+
+            </RadioGroup>
+
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/questionLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/timerCountDown"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/userCurrentLife"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/questionId"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/question"/>
-
-        <RadioGroup
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/RGroup">
-
-            <RadioButton android:id="@+id/choice_a"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="getSelected"
-                />
-
-            <RadioButton android:id="@+id/choice_b"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="getSelected"
-
-                />
-
-            <RadioButton android:id="@+id/choice_c"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="getSelected"
-
-                />
-
-            <RadioButton android:id="@+id/choice_d"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="getSelected"
-                />
-
-        </RadioGroup>
-
-    </LinearLayout>
-
-
-</LinearLayout>
+</layout>

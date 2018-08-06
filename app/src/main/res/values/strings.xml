@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Quick Guess</string>
-    <string name="user_api_url">http://192.168.1.14:80/</string>
+    <string name="user_api_url">http://192.168.1.2:80/</string>
     <string name="facebook_app_id">201329987230090</string>
     <string name="facebook_login_protocol_scheme">fb201329987230090</string>
 </resources>

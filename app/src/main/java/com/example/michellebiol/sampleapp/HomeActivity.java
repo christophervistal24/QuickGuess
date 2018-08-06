@@ -1,5 +1,6 @@
 package com.example.michellebiol.sampleapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,11 +19,13 @@ import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.Detector.ConnectionDetector;
 import com.example.michellebiol.sampleapp.Dialogs.PlayerNameDialog;
+import com.example.michellebiol.sampleapp.Helpers.SharedPreferenceHelper;
 import com.example.michellebiol.sampleapp.Interfaces.IPhoneInfo;
 import com.example.michellebiol.sampleapp.Interfaces.IRegisterUserApi;
 import com.example.michellebiol.sampleapp.LifeModule.Life;
 import com.example.michellebiol.sampleapp.Models.RegisterUserRequest;
 import com.example.michellebiol.sampleapp.Models.RegisterUserResponse;
+import com.example.michellebiol.sampleapp.RegisterModule.RegisterUser;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,12 +35,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo{
 
-    private ImageButton btnCategory;
+    ImageButton btnCategory;
     TextView userLife;
     IRegisterUserApi services;
     ConnectionDetector detector;
+    RegisterUser registerObject;
     Life life;
-
+    protected static HomeActivity instance;
 
 
 
@@ -45,19 +49,26 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        instance = this;
         hideNavigationBar();
-        btnCategory = (ImageButton) findViewById(R.id.btnCategory);
-        userLife = (TextView) findViewById(R.id.userLife);
+        castingElements();
         isTokenAlreadySet();
+        classNewInstances();
+        detector.checkConnection();
+        userLife.setText(String.format("Your life : %s", String.valueOf(life.setUserLife())));
+    }
+
+    private void classNewInstances()
+    {
         life = new Life(this);
         detector =  new ConnectionDetector(this);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(getString(R.string.user_api_url))
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        services = retrofit.create(IRegisterUserApi.class);
-        detector.checkConnection();
-        userLife.setText("Your life : " + (life.setUserLife() ));
+        registerObject  = new RegisterUser(this);
+    }
+
+    private void castingElements()
+    {
+        btnCategory = (ImageButton) findViewById(R.id.btnCategory);
+        userLife    = (TextView) findViewById(R.id.userLife);
     }
 
     @Override
@@ -66,7 +77,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         if(detector.checkConnection())
         {
             Toast.makeText(this, "User is connected", Toast.LENGTH_SHORT).show();
-            userLife.setText("Your life : " + (life.setUserLife() ));
+            userLife.setText(String.format("Your life : %s", String.valueOf(life.setUserLife())));
         } else
         {
             Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
@@ -113,75 +124,41 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         playerNameDialog.show(getSupportFragmentManager(),"Example Dialog");
     }
 
+    public static HomeActivity activityInstance()
+    {
+        return instance;
+    }
+
     @Override
     public void applyText(String playerName,String question , String questionAnswer) {
-        if (playerName.isEmpty() || question.isEmpty() || questionAnswer.isEmpty())
+        if (isFieldsAreEmpty(playerName,question,questionAnswer))
         {
-
             openInputDialog();
-
         } else {
             String[] p_info = getPhoneInfo();
-            RegisterUserRequest registerUser = new RegisterUserRequest();
-            registerUser.setUsername(playerName);
-            registerUser.setPassword(playerName);
-            registerUser.setQuestion(question);
-            registerUser.setAnswer(questionAnswer);
-            registerUser.setAndroid_id(p_info[0]);
-            registerUser.setAndroid_mac(p_info[1]);
-
-
-            Call<RegisterUserResponse> registerUserResponseCall = services.newUser(registerUser);
-            registerUserResponseCall.enqueue(new Callback<RegisterUserResponse>() {
-                @Override
-                public void onResponse(Call<RegisterUserResponse> call, Response<RegisterUserResponse> response) {
-
-                        if (response.isSuccessful()) {
-                            RegisterUserResponse registerUserResponse = response.body();
-                            String message = registerUserResponse.getMessage().toString();
-                            if(message.equals("Success"))
-                            {
-                                String token = registerUserResponse.getAccess_token();
-                                String token_type = registerUserResponse.getToken_type();
-                                String user_id = registerUserResponse.getId();
-                                String[] credentials = {token,token_type,user_id};
-                                setToken(credentials);
-
-                                Toast.makeText(HomeActivity.this,message, Toast.LENGTH_SHORT).show();
-
-                            } else {
-                                openInputDialog();
-                                Toast.makeText(HomeActivity.this, registerUserResponse.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                }
-
-                @Override
-                public void onFailure(Call<RegisterUserResponse> call, Throwable t) {
-                    Toast.makeText(HomeActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
+            String[] user_credentials = {playerName,playerName,question,questionAnswer};
+            registerObject.setCredentials(p_info,user_credentials);
         }
+    }
+
+    private boolean isFieldsAreEmpty(String txtPlayerName , String txtQuestion, String txtQuestionAnswer)
+    {
+        return txtPlayerName.isEmpty() || txtQuestion.isEmpty() || txtQuestionAnswer.isEmpty();
     }
 
     public void setToken(String[] value)
     {
-        SharedPreferences sharedPref = getSharedPreferences("tokens",Context.MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("token",value[0]);
-        editor.putString("token_type",value[1]);
-        editor.putString("user_id",value[2]);
-        editor.apply();
+        SharedPreferenceHelper.PREF_FILE = "tokens";
+        SharedPreferenceHelper.setSharedPreferenceString(this,"token",value[0]);
+        SharedPreferenceHelper.setSharedPreferenceString(this,"token_type",value[1]);
+        SharedPreferenceHelper.setSharedPreferenceString(this,"user_id",value[2]);
     }
 
     private void isTokenAlreadySet()
     {
-        SharedPreferences sharedPref = getSharedPreferences("tokens", Context.MODE_PRIVATE);
-        String token = sharedPref.getString("token","");
-        if (token.isEmpty())
+        SharedPreferenceHelper.PREF_FILE = "tokens";
+        String token = SharedPreferenceHelper.getSharedPreferenceString(this,"token",null);
+        if (token == null)
         {
             openInputDialog();
         }
@@ -194,7 +171,4 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         return new String[]{Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID) , wm.getConnectionInfo().getMacAddress()};
     }
-
-
-
 }

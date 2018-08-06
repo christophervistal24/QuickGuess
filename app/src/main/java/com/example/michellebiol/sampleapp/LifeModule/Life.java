@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.CategoryQuestion;
+import com.example.michellebiol.sampleapp.Helpers.SharedPreferenceHelper;
 import com.example.michellebiol.sampleapp.PointModule.Points;
+import com.facebook.share.Share;
 
 public class Life {
     private int LIFE = 5;
@@ -15,13 +17,13 @@ public class Life {
     private Points p;
 
     public Life(Context context) {
-        sharedPref = context.getSharedPreferences("user_life", Context.MODE_PRIVATE);
+        SharedPreferenceHelper.PREF_FILE="user_life";
         this.context = context;
         p = new Points(context);
     }
 
 
-    public boolean isGameOver(int playersLife)
+    private boolean isGameOver(int playersLife)
     {
         CategoryQuestion categoryQuestion;
         return playersLife == 1;
@@ -39,39 +41,29 @@ public class Life {
     private String decrementLife(int playersLife)
     {
         if (isGameOver(playersLife)) {
-            context.getSharedPreferences("user_life", Context.MODE_PRIVATE);
-            SharedPreferences.Editor sEditor = sharedPref.edit();
-            sEditor.putString("user_life",String.valueOf(this.LIFE));
-            sEditor.apply();
+            SharedPreferenceHelper.setSharedPreferenceInt(context,"user_life",this.LIFE);
            return "Game over";
        } else {
             playersLife--;
-            context.getSharedPreferences("user_life", Context.MODE_PRIVATE);
-            SharedPreferences.Editor sEditor = sharedPref.edit();
-            sEditor.putString("user_life",String.valueOf(playersLife));
-            sEditor.apply();
+            SharedPreferenceHelper.setSharedPreferenceInt(context,"user_life",playersLife);
             return "-1 Life";
         }
     }
 
-    public String setUserLife()
+    public int setUserLife()
     {
         if (isUserExists()) {
-            context.getSharedPreferences("user_life", Context.MODE_PRIVATE);
-            return sharedPref.getString("user_life","");
+            return SharedPreferenceHelper.getSharedPreferenceInt(context,"user_life",0);
         } else {
-            context.getSharedPreferences("user_life", Context.MODE_PRIVATE);
-            SharedPreferences.Editor sEditor = sharedPref.edit();
-            sEditor.putString("user_life",String.valueOf(this.LIFE));
-            sEditor.apply();
-            return String.valueOf(this.LIFE);
+            SharedPreferenceHelper.setSharedPreferenceInt(context,"user_life",this.LIFE);
+            return this.LIFE;
         }
     }
 
     private boolean isUserExists()
     {
-        String userLife = sharedPref.getString("user_life", "");
-        return !userLife.isEmpty();
+        int userLife = SharedPreferenceHelper.getSharedPreferenceInt(context,"user_life",0);
+        return userLife != 0;
     }
 
 }

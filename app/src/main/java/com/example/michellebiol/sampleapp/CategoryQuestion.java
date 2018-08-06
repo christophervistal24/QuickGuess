@@ -1,16 +1,14 @@
 package com.example.michellebiol.sampleapp;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -20,15 +18,19 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.michellebiol.sampleapp.Adapters.QuestionsAdapter;
+import com.example.michellebiol.sampleapp.Helpers.RandomizeHelper;
 import com.example.michellebiol.sampleapp.Interfaces.IAnswerApi;
 import com.example.michellebiol.sampleapp.Interfaces.IQuestionByCategoryApi;
+import com.example.michellebiol.sampleapp.Interfaces.OnTickListener;
 import com.example.michellebiol.sampleapp.LifeModule.Life;
 import com.example.michellebiol.sampleapp.Models.AnswerRequest;
 import com.example.michellebiol.sampleapp.Models.AnswerResponse;
+import com.example.michellebiol.sampleapp.Models.CountDownModel;
 import com.example.michellebiol.sampleapp.Models.QuestionsItem;
 import com.example.michellebiol.sampleapp.Models.QuestionsResponse;
 import com.example.michellebiol.sampleapp.PointModule.Points;
+import com.example.michellebiol.sampleapp.TimerModule.CountDown;
+import com.example.michellebiol.sampleapp.databinding.ActivityCategoryQuestionBinding;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -50,8 +52,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CategoryQuestion extends AppCompatActivity {
 
-    private RecyclerView questionRecyclerView;
-    private RecyclerView.Adapter adapter;
     private List<QuestionsItem> questionsItems;
     private static final long counter = 21000;
     CountDownTimer countDownTimer;
@@ -70,29 +70,35 @@ public class CategoryQuestion extends AppCompatActivity {
     Points p;
     boolean isCounterRunning;
     private int userPoints = 0;
+    CountDown countDown;
+    ActivityCategoryQuestionBinding categoryQuestionBinding;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category_question);
 
-        questionId = (TextView) findViewById(R.id.questionId);
-        question = (TextView) findViewById(R.id.question);
-        questionResult = (TextView) findViewById(R.id.questionResult);
-        questionFunFacts = (TextView) findViewById(R.id.questionFunFacts);
-        timerCountDown = (TextView) findViewById(R.id.timerCountDown);
-        userCurrentLife = (TextView) findViewById(R.id.userCurrentLife);
+        categoryQuestionBinding = DataBindingUtil.setContentView(this,R.layout.activity_category_question);
+        questionId = findViewById(R.id.questionId);
+        question = findViewById(R.id.question);
+        questionResult = findViewById(R.id.questionResult);
+        questionFunFacts = findViewById(R.id.questionFunFacts);
+        timerCountDown = findViewById(R.id.timerCountDown);
+        userCurrentLife = findViewById(R.id.userCurrentLife);
 
-        choice_a = (RadioButton) findViewById(R.id.choice_a);
-        choice_b = (RadioButton) findViewById(R.id.choice_b);
-        choice_c = (RadioButton) findViewById(R.id.choice_c);
-        choice_d = (RadioButton) findViewById(R.id.choice_d);
-        RGroup = (RadioGroup) findViewById(R.id.RGroup);
-        displayResult = (LinearLayout) findViewById(R.id.displayResult);
-        questionLayout = (LinearLayout) findViewById(R.id.questionLayout);
+        startTimer(counter);
 
-        btnNext = (Button) findViewById(R.id.btnNext);
-        btnShareOnFB = (Button) findViewById(R.id.btnShareOnFB);
+        choice_a = findViewById(R.id.choice_a);
+        choice_b = findViewById(R.id.choice_b);
+        choice_c = findViewById(R.id.choice_c);
+        choice_d = findViewById(R.id.choice_d);
+        RGroup = findViewById(R.id.RGroup);
+        displayResult = findViewById(R.id.displayResult);
+        questionLayout = findViewById(R.id.questionLayout);
+
+        btnNext = findViewById(R.id.btnNext);
+        btnShareOnFB = findViewById(R.id.btnShareOnFB);
+
         life = new Life(this);
         p = new Points(this);
 
@@ -163,7 +169,6 @@ public class CategoryQuestion extends AppCompatActivity {
         });
     }
 
-
     private void getQuestions()
     {
 
@@ -220,43 +225,9 @@ public class CategoryQuestion extends AppCompatActivity {
         super.onResume();
     }
 
-    private List<QuestionsItem> generateRandomQuestion(List<QuestionsItem> arr , int n)
-    {
-        Random r = new Random();
-
-        for(int i = n-1; i > 0; i--)
-        {
-            int j = r.nextInt(i);
-
-            QuestionsItem temp = arr.get(i);
-            arr.set(i, arr.get(j));
-            arr.set(j, temp);
-        }
-
-        return arr;
-    }
-
-    //randomize the choices
-
-    public String[] randomize(String arr[] , int n)
-    {
-        Random r = new Random();
-
-        for(int i = n-1; i > 0; i--)
-        {
-            int j = r.nextInt(i);
-
-            String temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
-
-        return arr;
-    }
 
     @Override
     public void onBackPressed() {
-        countDownTimer.cancel();
         super.onBackPressed();
     }
 
@@ -269,7 +240,7 @@ public class CategoryQuestion extends AppCompatActivity {
             Toast.makeText(this, "congratulations you answered all the questions", Toast.LENGTH_SHORT).show();
             return;
         } else {
-            QuestionsItem randQuestion = generateRandomQuestion(questionsItems, size).get(0);
+            QuestionsItem randQuestion = RandomizeHelper.questions(questionsItems, size).get(0);
             String[] arr = {
                     randQuestion.getChoice_a(),
                     randQuestion.getChoice_b(),
@@ -277,9 +248,9 @@ public class CategoryQuestion extends AppCompatActivity {
                     randQuestion.getChoice_d()
             };
             int n = arr.length;
-            String[] shuffledChoices = randomize(arr,n);
-            startTimer(counter);
-            userCurrentLife.setText(life.setUserLife());
+            String[] shuffledChoices = RandomizeHelper.choices(arr,n);
+//            startTimer(counter);
+            userCurrentLife.setText(String.valueOf(life.setUserLife()));
             questionId.setText(randQuestion.getId());
             question.setText(randQuestion.getQuest());
             correctAnswer = randQuestion.getCorrect_answer();
@@ -291,9 +262,6 @@ public class CategoryQuestion extends AppCompatActivity {
         }
 
     }
-
-
-
 
 
     public void getSelected(View v)
@@ -390,16 +358,15 @@ public class CategoryQuestion extends AppCompatActivity {
 
 
     private  void startTimer(final long counter) {
-
+       countDown = new CountDown(21000);
        if (!isCounterRunning) {
            isCounterRunning  = true;
            countDownTimer = new CountDownTimer(counter, 1000) {
                @Override
                public void onTick(long millisUntilFinished) {
-                   timerCountDown.setText(
-                           String.format("%02d",
-                                   TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
-                                           TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
+                   countDown.setTimer(String.valueOf(TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
+                           TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
+                   categoryQuestionBinding.setCountdown(countDown);
 
                }
 

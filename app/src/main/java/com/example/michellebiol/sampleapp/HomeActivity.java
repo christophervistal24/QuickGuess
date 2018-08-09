@@ -35,7 +35,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo{
 
-    ImageButton btnCategory;
+    Button btnCategory;
     TextView userLife;
     IRegisterUserApi services;
     ConnectionDetector detector;
@@ -67,7 +67,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
 
     private void castingElements()
     {
-        btnCategory = (ImageButton) findViewById(R.id.btnCategory);
+        btnCategory = (Button) findViewById(R.id.btnCategory);
         userLife    = (TextView) findViewById(R.id.userLife);
     }
 

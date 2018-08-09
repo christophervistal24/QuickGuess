@@ -6,29 +6,26 @@ import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.CountDownTimer;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.michellebiol.sampleapp.Handlers.MyHandlers;
 import com.example.michellebiol.sampleapp.Helpers.RandomizeHelper;
 import com.example.michellebiol.sampleapp.Interfaces.IAnswerApi;
 import com.example.michellebiol.sampleapp.Interfaces.IQuestionByCategoryApi;
-import com.example.michellebiol.sampleapp.Interfaces.OnTickListener;
 import com.example.michellebiol.sampleapp.LifeModule.Life;
 import com.example.michellebiol.sampleapp.Models.AnswerRequest;
 import com.example.michellebiol.sampleapp.Models.AnswerResponse;
-import com.example.michellebiol.sampleapp.Models.CountDownModel;
 import com.example.michellebiol.sampleapp.Models.QuestionsItem;
 import com.example.michellebiol.sampleapp.Models.QuestionsResponse;
 import com.example.michellebiol.sampleapp.PointModule.Points;
+import com.example.michellebiol.sampleapp.QuestionModule.Question;
 import com.example.michellebiol.sampleapp.TimerModule.CountDown;
 import com.example.michellebiol.sampleapp.databinding.ActivityCategoryQuestionBinding;
 import com.facebook.CallbackManager;
@@ -41,7 +38,6 @@ import com.facebook.share.widget.ShareDialog;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
@@ -57,10 +53,7 @@ public class CategoryQuestion extends AppCompatActivity {
     CountDownTimer countDownTimer;
     IQuestionByCategoryApi service;
     IAnswerApi answerService;
-    TextView questionId , question , timerCountDown , questionResult , questionFunFacts , userCurrentLife;
-    RadioGroup RGroup;
-    RadioButton choice_a ,choice_b , choice_c , choice_d , radioButton;
-    private long mLastClickTime = 0;
+    TextView  questionResult , questionFunFacts , userCurrentLife;
     private String correctAnswer , funFacts;
     private LinearLayout displayResult , questionLayout;
     Button btnNext,btnShareOnFB;
@@ -70,8 +63,10 @@ public class CategoryQuestion extends AppCompatActivity {
     Points p;
     boolean isCounterRunning;
     private int userPoints = 0;
+
     CountDown countDown;
     ActivityCategoryQuestionBinding categoryQuestionBinding;
+    Question questionClass;
 
 
     @Override
@@ -79,20 +74,13 @@ public class CategoryQuestion extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         categoryQuestionBinding = DataBindingUtil.setContentView(this,R.layout.activity_category_question);
-        questionId = findViewById(R.id.questionId);
-        question = findViewById(R.id.question);
+        MyHandlers handlers = new MyHandlers(this);
+        categoryQuestionBinding.setHandlers(handlers);
+
         questionResult = findViewById(R.id.questionResult);
         questionFunFacts = findViewById(R.id.questionFunFacts);
-        timerCountDown = findViewById(R.id.timerCountDown);
         userCurrentLife = findViewById(R.id.userCurrentLife);
-
         startTimer(counter);
-
-        choice_a = findViewById(R.id.choice_a);
-        choice_b = findViewById(R.id.choice_b);
-        choice_c = findViewById(R.id.choice_c);
-        choice_d = findViewById(R.id.choice_d);
-        RGroup = findViewById(R.id.RGroup);
         displayResult = findViewById(R.id.displayResult);
         questionLayout = findViewById(R.id.questionLayout);
 
@@ -228,10 +216,16 @@ public class CategoryQuestion extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+
         super.onBackPressed();
+        countDownTimer.cancel();
     }
 
 
+    private String[] getChoices(QuestionsItem choices)
+    {
+        return new String[]{choices.getChoice_a(), choices.getChoice_b(), choices.getChoice_c(), choices.getChoice_d()};
+    }
 
     private void setQuestion()
     {
@@ -241,41 +235,23 @@ public class CategoryQuestion extends AppCompatActivity {
             return;
         } else {
             QuestionsItem randQuestion = RandomizeHelper.questions(questionsItems, size).get(0);
-            String[] arr = {
-                    randQuestion.getChoice_a(),
-                    randQuestion.getChoice_b(),
-                    randQuestion.getChoice_c(),
-                    randQuestion.getChoice_d()
-            };
-            int n = arr.length;
-            String[] shuffledChoices = RandomizeHelper.choices(arr,n);
-//            startTimer(counter);
+            String[] choices = getChoices(randQuestion);
+            String[] shuffledChoices = RandomizeHelper.choices(choices,choices.length);
+
             userCurrentLife.setText(String.valueOf(life.setUserLife()));
-            questionId.setText(randQuestion.getId());
-            question.setText(randQuestion.getQuest());
+
+            questionClass  = new Question(
+                    randQuestion.getId(),randQuestion.getQuest(),shuffledChoices[0],
+                    shuffledChoices[1],shuffledChoices[2],shuffledChoices[3]
+            );
+
+            categoryQuestionBinding.setQuestions(questionClass);
             correctAnswer = randQuestion.getCorrect_answer();
             funFacts = randQuestion.getFun_facts();
-            choice_a.setText(shuffledChoices[0]);
-            choice_b.setText(shuffledChoices[1]);
-            choice_c.setText(shuffledChoices[2]);
-            choice_d.setText(shuffledChoices[3]);
         }
 
     }
 
-
-    public void getSelected(View v)
-    {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-            return;
-        }
-        mLastClickTime = SystemClock.elapsedRealtime();
-        int selectedId = RGroup.getCheckedRadioButtonId();
-        radioButton = findViewById(selectedId);
-        countDownTimer.cancel();
-        RGroup.clearCheck();
-        displayResult(isCorrect(radioButton.getText().toString()));
-    }
 
     private void displayResult(String correctOrWrong) {
         questionLayout.setVisibility(View.INVISIBLE);
@@ -294,7 +270,7 @@ public class CategoryQuestion extends AppCompatActivity {
 
     private void timesUpCheck(RadioGroup RGroup)
     {
-        int selectedId = RGroup.getCheckedRadioButtonId();
+     /*   int selectedId = RGroup.getCheckedRadioButtonId();
         radioButton = findViewById(selectedId);
         String getResult = null;
         if(selectedId <= -1) {
@@ -306,7 +282,7 @@ public class CategoryQuestion extends AppCompatActivity {
         }
         countDownTimer.cancel();
         displayResult(getResult);
-        RGroup.clearCheck();
+        RGroup.clearCheck();*/
     }
 
     //send the user status to the database using retrofit
@@ -343,7 +319,7 @@ public class CategoryQuestion extends AppCompatActivity {
         {
             result = "Correct";
             p.setPoints(++userPoints);
-            sendAnswer(questionId.getText().toString(),result);
+//            sendAnswer(questionId.getText().toString(),result);
         }
         else
         {
@@ -363,17 +339,18 @@ public class CategoryQuestion extends AppCompatActivity {
            isCounterRunning  = true;
            countDownTimer = new CountDownTimer(counter, 1000) {
                @Override
-               public void onTick(long millisUntilFinished) {
-                   countDown.setTimer(String.valueOf(TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
-                           TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
+               public void onTick(long timeRemaining) {
+                   countDown.setTimer(
+                           String.valueOf(TimeUnit.MILLISECONDS.toSeconds(timeRemaining) -
+                           TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeRemaining)))
+                   );
                    categoryQuestionBinding.setCountdown(countDown);
-
                }
 
                @Override
                public void onFinish() {
                    isCounterRunning = false;
-                   timesUpCheck(RGroup);
+//                   timesUpCheck(RGroup);
                }
            };
            countDownTimer.start();

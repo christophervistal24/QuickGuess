@@ -2,91 +2,76 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/drawerLayout">
+    >
 
-
-
-        <!--<com.airbnb.lottie.LottieAnimationView-->
-            <!--android:id="@+id/animation_view"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--app:lottie_autoPlay="true"-->
-            <!--app:lottie_fileName="clock.json"-->
-            <!--app:lottie_loop="true" />-->
-
-        <!--/>-->
-
-    <!--<TextView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_marginBottom="219dp"-->
-        <!--android:gravity="center"-->
-        <!--android:text="Quick Guess"-->
-        <!--android:textSize="25dp" />-->
-
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:maxHeight="0dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_plane"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/userLife"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-        />
+            android:layout_gravity="end"
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp"
+           />
 
         <Button
+            android:id="@+id/btnFirst"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="First"
             android:onClick="firstActivity"
-            android:id="@+id/btnFirst"/>
+            android:background="@drawable/btn_category"
+            android:layout_marginBottom="20dp"
+             />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="35dp"
-                android:orientation="horizontal"
-                android:gravity="center">
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="60dp"
-                    android:onClick="categories"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/categories_btn"
-                    android:scaleType="centerCrop"
-                    android:id="@+id/btnCategory"/>
-
-
-            </LinearLayout>
 
         <Button
+            android:id="@+id/btnCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Accounts"
+            android:background="@drawable/btn_category"
+            android:layout_marginBottom="20dp"
+            android:onClick="categories" />
+
+
+        <Button
+            android:id="@+id/btnThird"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/btn_about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:onClick="accounts"
-            android:id="@+id/btnThird"/>
+             />
 
         <Button
+            android:id="@+id/btnFourth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rankings"
-            android:onClick="rankings"
-            android:id="@+id/btnFourth"/>
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/btn_ranks"
+            android:onClick="rankings" />
 
         <Button
+            android:id="@+id/btnFifth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Fifth"
-            android:onClick="fifthActivity"
-            android:id="@+id/btnFifth"/>
-
+            android:background="@drawable/btn_about"
+            android:onClick="fifthActivity" />
 
     </LinearLayout>
 

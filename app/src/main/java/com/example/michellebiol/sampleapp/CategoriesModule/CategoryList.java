@@ -43,7 +43,6 @@ public class CategoryList {
                 .build();
 
         this.service = retrofit.create(ICategoriesApi.class);
-
         getTokens().getCategories();
     }
 

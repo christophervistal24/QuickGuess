@@ -18,7 +18,6 @@ public class MyHandlers {
     {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return;
-
         }
          mLastClickTime = SystemClock.elapsedRealtime();
     }

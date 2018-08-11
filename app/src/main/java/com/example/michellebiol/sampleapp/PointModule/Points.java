@@ -41,7 +41,7 @@ public class Points {
     public void insertPoints(int points)
     {
 
-             SharedPreferences sharedPref = context.getSharedPreferences("tokens", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = context.getSharedPreferences("tokens", Context.MODE_PRIVATE);
         String token_type = sharedPref.getString("token_type","");
         String token = sharedPref.getString("token","");
 

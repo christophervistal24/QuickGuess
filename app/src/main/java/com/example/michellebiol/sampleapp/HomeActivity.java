@@ -26,8 +26,6 @@ import com.example.michellebiol.sampleapp.databinding.ActivityHomeBinding;
 
 public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo{
 
-    Button btnCategory;
-    IRegisterUserApi services;
     ConnectionDetector detector;
     RegisterUser registerObject;
     Life life;
@@ -44,43 +42,34 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         homeBinding = DataBindingUtil.setContentView(this,R.layout.activity_home);
         instance = this;
         hideNavigationBar();
-        castingElements();
         isTokenAlreadySet();
-        classNewInstances();
-        detector.checkConnection();
-        sharedPreferences = getSharedPreferences("user_life",0);
-        lifeOfUser = String.valueOf(sharedPreferences.getInt("life",0));
-        life.setLife(lifeOfUser);
-        homeBinding.userLife.setText(lifeOfUser);
-    }
-
-    private void classNewInstances()
-    {
         life = new Life(this);
         detector =  new ConnectionDetector(this);
         registerObject  = new RegisterUser(this);
+        detector.checkConnection();
+
+        sharedPreferences = getSharedPreferences("user_life",0);
+        lifeOfUser = String.valueOf(sharedPreferences.getInt("life",5));
+        life.setLife(lifeOfUser);
+        homeBinding.userLife.setText(lifeOfUser);
+
     }
 
-    private void castingElements()
-    {
-        btnCategory = (Button) findViewById(R.id.btnCategory);
-    }
 
     @Override
     protected void onResume()
     {
         if(detector.checkConnection())
         {
-            life.setLife(String.valueOf(sharedPreferences.getInt("life",0)));
-            homeBinding.userLife.setText(String.valueOf(sharedPreferences.getInt("life",0)));
+            life.setLife(String.valueOf(sharedPreferences.getInt("life",5)));
+            homeBinding.userLife.setText(String.valueOf(sharedPreferences.getInt("life",5)));
 //            Toast.makeText(this, "User is connected", Toast.LENGTH_SHORT).show();
         } else
         {
-//            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+    // action if the user has no internet connection
         }
         super.onResume();
         hideNavigationBar();
-
     }
 
     private void hideNavigationBar() {
@@ -92,25 +81,27 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         );
     }
 
+    public void gotoActivity(View v)
+    {   Intent intent;
+        switch(v.getId())
+        {
+            case R.id.btnCategory :
+                intent  = new Intent(this,CategoriesActivity.class);
+                startActivity(intent);
+                break;
 
-    public void categories(View view)
-    {
-        Intent intent  = new Intent(this,CategoriesActivity.class);
-        startActivity(intent);
+            case R.id.btnRanks :
+                intent  = new Intent(this,RankingsActivity.class);
+                startActivity(intent);
+                break;
 
-    }
-
-    public void accounts(View view)
-    {
-        Intent intent  = new Intent(this,AccountsActivity.class);
-        startActivity(intent);
-
-    }
-
-    public void rankings(View view)
-    {
-        Intent intent  = new Intent(this,RankingsActivity.class);
-        startActivity(intent);
+            case R.id.btnAccounts :
+                intent = new Intent(this,AccountsActivity.class);
+                startActivity(intent);
+                break;
+            default :
+                Toast.makeText(this,"Hello , World",Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void openInputDialog()

@@ -27,17 +27,17 @@ public class Check {
 
 
 
-    public static void checkAnswer(Activity activity)
+    public static boolean checkAnswer(Activity activity)
     {
         if (Check.answer.equals(Check.correct_answer.trim()))
         {
             int points = Correct.addPoints(++userPoints);
-     /*       current points of the user
-            Log.d("User points ",String.valueOf(points));*/
-            return;
+            Toast.makeText(activity.getApplicationContext(),String.valueOf(points),Toast.LENGTH_SHORT).show();
+            return true;
         }
         Life life = new Life(activity.getApplicationContext());
         life.setLife(String.valueOf(Wrong.decreaseLife(life.getLife())));
+        return false;
     }
 
 }

@@ -1,0 +1,20 @@
+package com.example.michellebiol.sampleapp.Helpers;
+
+import android.content.Context;
+
+public class TokenUtil {
+    private static final String PREFERENCES_FILE = "tokens";
+
+    public static String getTokenType(Context context)
+    {
+        SharedPreferenceHelper.PREF_FILE = PREFERENCES_FILE;
+        return SharedPreferenceHelper.getSharedPreferenceString(context,"token_type",null);
+    }
+
+    public static String getToken(Context context)
+    {
+        SharedPreferenceHelper.PREF_FILE = PREFERENCES_FILE;
+        return SharedPreferenceHelper.getSharedPreferenceString(context,"token",null);
+    }
+
+}

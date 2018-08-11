@@ -20,10 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.AnswerModule.Check;
+import com.example.michellebiol.sampleapp.AnswerModule.Result;
 import com.example.michellebiol.sampleapp.Handlers.MyEvents;
 import com.example.michellebiol.sampleapp.Handlers.MyHandlers;
 import com.example.michellebiol.sampleapp.Helpers.RandomizeHelper;
 import com.example.michellebiol.sampleapp.Helpers.SharedPreferenceHelper;
+import com.example.michellebiol.sampleapp.Helpers.TokenUtil;
 import com.example.michellebiol.sampleapp.Interfaces.IAnswerApi;
 import com.example.michellebiol.sampleapp.Interfaces.IQuestionByCategoryApi;
 import com.example.michellebiol.sampleapp.LifeModule.Life;
@@ -33,6 +35,7 @@ import com.example.michellebiol.sampleapp.Models.QuestionsItem;
 import com.example.michellebiol.sampleapp.Models.QuestionsResponse;
 import com.example.michellebiol.sampleapp.PointModule.Points;
 import com.example.michellebiol.sampleapp.QuestionModule.Question;
+import com.example.michellebiol.sampleapp.QuestionModule.QuestionService;
 import com.example.michellebiol.sampleapp.TimerModule.CountDown;
 import com.example.michellebiol.sampleapp.databinding.ActivityCategoryQuestionBinding;
 import com.facebook.CallbackManager;
@@ -56,13 +59,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class CategoryQuestion extends AppCompatActivity {
 
     private List<QuestionsItem> questionsItems;
-    private static final long counter = 21000;
+    private static final long counter = 5000;
     CountDownTimer countDownTimer;
     IQuestionByCategoryApi service;
     IAnswerApi answerService;
-    TextView  questionResult , questionFunFacts;
-
-    private LinearLayout displayResult , questionLayout;
     Button btnNext,btnShareOnFB;
     CallbackManager callbackManager;
     ShareDialog shareDialog;
@@ -82,21 +82,24 @@ public class CategoryQuestion extends AppCompatActivity {
         categoryQuestionBinding.setLifemodule(life);
         startTimer(counter);
 
-        questionResult = findViewById(R.id.questionResult);
-        questionFunFacts = findViewById(R.id.questionFunFacts);
-        displayResult = findViewById(R.id.displayResult);
-        questionLayout = findViewById(R.id.questionLayout);
+
         btnNext = findViewById(R.id.btnNext);
         btnShareOnFB = findViewById(R.id.btnShareOnFB);
 
         categoryQuestionBinding.setEvent(new MyEvents() {
             @Override
             public void onCustomCheckChanged(RadioGroup radio , int id) {
-                 MyHandlers.avoidMultipleClick();
-                 RadioButton selected = (RadioButton)findViewById(id);
-                 Check.answer = (String) selected.getText();
-                 Check.checkAnswer(CategoryQuestion.this);
-                 categoryQuestionBinding.setLifemodule(life);
+                countDownTimer.cancel();
+                MyHandlers.avoidMultipleClick();
+                RadioButton selected = (RadioButton)findViewById(id);
+                if (selected != null)
+                {
+                    Check.answer = (String) selected.getText();
+                    displayQuestionResult();
+                    categoryQuestionBinding.setLifemodule(life);
+                    radio.clearCheck();
+                }
+
             }
         });
 
@@ -155,11 +158,12 @@ public class CategoryQuestion extends AppCompatActivity {
             }
         });
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
+        categoryQuestionBinding.btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 countDownTimer.start();
                 displayNewQuestion();
+                setQuestion();
             }
         });
 
@@ -168,24 +172,14 @@ public class CategoryQuestion extends AppCompatActivity {
 
     private void getQuestions()
     {
-
-        SharedPreferenceHelper.PREF_FILE = "tokens";
-        String token_type = SharedPreferenceHelper.getSharedPreferenceString(this,"token_type",null);
-        String token = SharedPreferenceHelper.getSharedPreferenceString(this,"token",null);
-
         questionsItems = new ArrayList<>();
-
+        String token_type = TokenUtil.getTokenType(this);
+        String token = TokenUtil.getToken(this);
         Intent i = getIntent();
         String id = i.getStringExtra("category_id");
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(getString(R.string.user_api_url))
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        service = retrofit.create(IQuestionByCategoryApi.class);
-
+        Retrofit questionApiService = QuestionService.QuestionAPIService(this);
+        service = questionApiService.create(IQuestionByCategoryApi.class);
         Call<List<QuestionsResponse>> call = service.getQuestions(token_type+token,Integer.parseInt(id));
-
         call.enqueue(new Callback<List<QuestionsResponse>>() {
 
             @Override
@@ -200,10 +194,8 @@ public class CategoryQuestion extends AppCompatActivity {
                     questionsItems.add(questionsItem);
                 }
 
-                if(response.isSuccessful())
-                {
-                    setQuestion();
-                }
+                if  (response.isSuccessful())
+                            setQuestion();
             }
 
             @Override
@@ -214,6 +206,7 @@ public class CategoryQuestion extends AppCompatActivity {
 
     }
 
+    //on resume
     @Override
     protected void onResume()
     {
@@ -222,7 +215,8 @@ public class CategoryQuestion extends AppCompatActivity {
     }
 
 
-    @Override
+    //onback pressed
+       @Override
     public void onBackPressed() {
 
         super.onBackPressed();
@@ -239,7 +233,6 @@ public class CategoryQuestion extends AppCompatActivity {
     {
 
         int size = questionsItems.size();
-
         if (size == 0){
             Toast.makeText(this, "congratulations you answered all the questions", Toast.LENGTH_SHORT).show();
             return;
@@ -262,25 +255,26 @@ public class CategoryQuestion extends AppCompatActivity {
 
             //set the collected values
             categoryQuestionBinding.setQuestions(questionClass);
-
             Check.correctAnswer(randQuestion.getCorrect_answer());
         }
 
     }
 
 
-    private void displayResult(String correctOrWrong) {
-        questionLayout.setVisibility(View.INVISIBLE);
-        questionResult.setText("Result : " + correctOrWrong);
-        displayResult.setVisibility(View.VISIBLE);
-        getQuestions();
-        Toast.makeText(this, "Points : " + String.valueOf(p.getPoints()), Toast.LENGTH_SHORT).show();
 
+
+    private void displayQuestionResult() {
+        if (Result.questionResult(Check.checkAnswer(CategoryQuestion.this)).equals("Correct"))
+        {
+            sendAnswer(String.valueOf(categoryQuestionBinding.questionId.getText()),"Correct");
+        }
+        categoryQuestionBinding.questionLayout.setVisibility(View.INVISIBLE);
+        categoryQuestionBinding.displayResult.setVisibility(View.VISIBLE);
     }
 
     private void displayNewQuestion() {
-        questionLayout.setVisibility(View.VISIBLE);
-        displayResult.setVisibility(View.INVISIBLE);
+        categoryQuestionBinding.questionLayout.setVisibility(View.VISIBLE);
+        categoryQuestionBinding.displayResult.setVisibility(View.INVISIBLE);
     }
 
 
@@ -288,9 +282,8 @@ public class CategoryQuestion extends AppCompatActivity {
     private void sendAnswer(String questionId, String result)
     {
         //get the user token
-        SharedPreferences sharedPref = getSharedPreferences("tokens", Context.MODE_PRIVATE);
-        String token_type = sharedPref.getString("token_type","");
-        String token = sharedPref.getString("token","");
+        String token_type = TokenUtil.getTokenType(this);
+        String token = TokenUtil.getToken(this);
 
         final AnswerRequest answerRequest = new AnswerRequest();
         answerRequest.setQuestion_id(Integer.parseInt(questionId));
@@ -311,7 +304,7 @@ public class CategoryQuestion extends AppCompatActivity {
     }
 
     private  void startTimer(final long counter) {
-       countDown = new CountDown(21000);
+       countDown = new CountDown(counter);
        if (!isCounterRunning) {
            isCounterRunning  = true;
            countDownTimer = new CountDownTimer(counter, 1000) {
@@ -328,6 +321,8 @@ public class CategoryQuestion extends AppCompatActivity {
                public void onFinish() {
                    isCounterRunning = false;
                    Check.answer = "No answer";
+                   Result.questionResult(Check.checkAnswer(CategoryQuestion.this));
+                   categoryQuestionBinding.setLifemodule(life);
                }
            };
            countDownTimer.start();

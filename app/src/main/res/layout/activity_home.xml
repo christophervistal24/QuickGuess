@@ -39,7 +39,7 @@
             android:id="@+id/btnFirst"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="firstActivity"
+            android:onClick="gotoActivity"
             android:background="@drawable/btn_category"
             android:layout_marginBottom="20dp"
              />
@@ -51,32 +51,32 @@
             android:layout_height="wrap_content"
             android:background="@drawable/btn_category"
             android:layout_marginBottom="20dp"
-            android:onClick="categories" />
+            android:onClick="gotoActivity" />
 
 
         <Button
-            android:id="@+id/btnThird"
+            android:id="@+id/btnAccounts"
             android:layout_marginBottom="20dp"
             android:background="@drawable/btn_about"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="accounts"
+            android:onClick="gotoActivity"
              />
 
         <Button
-            android:id="@+id/btnFourth"
+            android:id="@+id/btnRanks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:background="@drawable/btn_ranks"
-            android:onClick="rankings" />
+            android:onClick="gotoActivity" />
 
         <Button
             android:id="@+id/btnFifth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_about"
-            android:onClick="fifthActivity" />
+            android:onClick="gotoActivity" />
 
     </LinearLayout>
 

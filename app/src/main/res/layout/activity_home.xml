@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <variable name="lifemodule" type="com.example.michellebiol.sampleapp.LifeModule.Life" />
+    </data>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -76,3 +81,4 @@
     </LinearLayout>
 
 </RelativeLayout>
+</layout>

@@ -1,19 +1,16 @@
 package com.example.michellebiol.sampleapp;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,39 +20,38 @@ import com.example.michellebiol.sampleapp.Helpers.SharedPreferenceHelper;
 import com.example.michellebiol.sampleapp.Interfaces.IPhoneInfo;
 import com.example.michellebiol.sampleapp.Interfaces.IRegisterUserApi;
 import com.example.michellebiol.sampleapp.LifeModule.Life;
-import com.example.michellebiol.sampleapp.Models.RegisterUserRequest;
-import com.example.michellebiol.sampleapp.Models.RegisterUserResponse;
 import com.example.michellebiol.sampleapp.RegisterModule.RegisterUser;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import com.example.michellebiol.sampleapp.databinding.ActivityCategoryQuestionBinding;
+import com.example.michellebiol.sampleapp.databinding.ActivityHomeBinding;
 
 public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo{
 
     Button btnCategory;
-    TextView userLife;
     IRegisterUserApi services;
     ConnectionDetector detector;
     RegisterUser registerObject;
     Life life;
     protected static HomeActivity instance;
+    ActivityHomeBinding homeBinding;
+    SharedPreferences sharedPreferences;
+    String lifeOfUser;
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        homeBinding = DataBindingUtil.setContentView(this,R.layout.activity_home);
         instance = this;
         hideNavigationBar();
         castingElements();
         isTokenAlreadySet();
         classNewInstances();
         detector.checkConnection();
-        userLife.setText(String.format("Your life : %s", String.valueOf(life.setUserLife())));
+        sharedPreferences = getSharedPreferences("user_life",0);
+        lifeOfUser = String.valueOf(sharedPreferences.getInt("life",0));
+        life.setLife(lifeOfUser);
+        homeBinding.userLife.setText(lifeOfUser);
     }
 
     private void classNewInstances()
@@ -68,7 +64,6 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     private void castingElements()
     {
         btnCategory = (Button) findViewById(R.id.btnCategory);
-        userLife    = (TextView) findViewById(R.id.userLife);
     }
 
     @Override
@@ -76,11 +71,12 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     {
         if(detector.checkConnection())
         {
-            Toast.makeText(this, "User is connected", Toast.LENGTH_SHORT).show();
-            userLife.setText(String.format("Your life : %s", String.valueOf(life.setUserLife())));
+            life.setLife(String.valueOf(sharedPreferences.getInt("life",0)));
+            homeBinding.userLife.setText(String.valueOf(sharedPreferences.getInt("life",0)));
+//            Toast.makeText(this, "User is connected", Toast.LENGTH_SHORT).show();
         } else
         {
-            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
         }
         super.onResume();
         hideNavigationBar();

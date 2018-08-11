@@ -1,5 +1,7 @@
 package com.example.michellebiol.sampleapp;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,15 +10,20 @@ import android.net.Uri;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.michellebiol.sampleapp.AnswerModule.Check;
+import com.example.michellebiol.sampleapp.Handlers.MyEvents;
 import com.example.michellebiol.sampleapp.Handlers.MyHandlers;
 import com.example.michellebiol.sampleapp.Helpers.RandomizeHelper;
+import com.example.michellebiol.sampleapp.Helpers.SharedPreferenceHelper;
 import com.example.michellebiol.sampleapp.Interfaces.IAnswerApi;
 import com.example.michellebiol.sampleapp.Interfaces.IQuestionByCategoryApi;
 import com.example.michellebiol.sampleapp.LifeModule.Life;
@@ -53,43 +60,45 @@ public class CategoryQuestion extends AppCompatActivity {
     CountDownTimer countDownTimer;
     IQuestionByCategoryApi service;
     IAnswerApi answerService;
-    TextView  questionResult , questionFunFacts , userCurrentLife;
-    private String correctAnswer , funFacts;
+    TextView  questionResult , questionFunFacts;
+
     private LinearLayout displayResult , questionLayout;
     Button btnNext,btnShareOnFB;
     CallbackManager callbackManager;
     ShareDialog shareDialog;
     Life life;
     Points p;
-    boolean isCounterRunning;
-    private int userPoints = 0;
-
+    boolean isCounterRunning = false;
     CountDown countDown;
-    ActivityCategoryQuestionBinding categoryQuestionBinding;
+    public ActivityCategoryQuestionBinding categoryQuestionBinding;
     Question questionClass;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         categoryQuestionBinding = DataBindingUtil.setContentView(this,R.layout.activity_category_question);
-        MyHandlers handlers = new MyHandlers(this);
-        categoryQuestionBinding.setHandlers(handlers);
+        life = new Life(this);
+        p = new Points(this);
+        categoryQuestionBinding.setLifemodule(life);
+        startTimer(counter);
 
         questionResult = findViewById(R.id.questionResult);
         questionFunFacts = findViewById(R.id.questionFunFacts);
-        userCurrentLife = findViewById(R.id.userCurrentLife);
-        startTimer(counter);
         displayResult = findViewById(R.id.displayResult);
         questionLayout = findViewById(R.id.questionLayout);
-
         btnNext = findViewById(R.id.btnNext);
         btnShareOnFB = findViewById(R.id.btnShareOnFB);
 
-        life = new Life(this);
-        p = new Points(this);
-
+        categoryQuestionBinding.setEvent(new MyEvents() {
+            @Override
+            public void onCustomCheckChanged(RadioGroup radio , int id) {
+                 MyHandlers.avoidMultipleClick();
+                 RadioButton selected = (RadioButton)findViewById(id);
+                 Check.answer = (String) selected.getText();
+                 Check.checkAnswer(CategoryQuestion.this);
+                 categoryQuestionBinding.setLifemodule(life);
+            }
+        });
 
         //initialize retrofit for answer api
         Retrofit retrofit = new Retrofit.Builder()
@@ -102,8 +111,6 @@ public class CategoryQuestion extends AppCompatActivity {
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);
 
-        //trigger for counter or timer
-        isCounterRunning = false;
 
         btnShareOnFB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,14 +162,17 @@ public class CategoryQuestion extends AppCompatActivity {
                 displayNewQuestion();
             }
         });
-    }
+
+        }
+
 
     private void getQuestions()
     {
 
-        SharedPreferences sharedPref = getSharedPreferences("tokens", Context.MODE_PRIVATE);
-        String token_type = sharedPref.getString("token_type","");
-        String token = sharedPref.getString("token","");
+        SharedPreferenceHelper.PREF_FILE = "tokens";
+        String token_type = SharedPreferenceHelper.getSharedPreferenceString(this,"token_type",null);
+        String token = SharedPreferenceHelper.getSharedPreferenceString(this,"token",null);
+
         questionsItems = new ArrayList<>();
 
         Intent i = getIntent();
@@ -190,8 +200,6 @@ public class CategoryQuestion extends AppCompatActivity {
                     questionsItems.add(questionsItem);
                 }
 
-//                adapter = new QuestionsAdapter(questionsItems,getApplicationContext());
-//                questionRecyclerView.setAdapter(adapter);
                 if(response.isSuccessful())
                 {
                     setQuestion();
@@ -229,25 +237,33 @@ public class CategoryQuestion extends AppCompatActivity {
 
     private void setQuestion()
     {
+
         int size = questionsItems.size();
+
         if (size == 0){
             Toast.makeText(this, "congratulations you answered all the questions", Toast.LENGTH_SHORT).show();
             return;
         } else {
+            //randomize all the question and get the first question in the element
             QuestionsItem randQuestion = RandomizeHelper.questions(questionsItems, size).get(0);
+
+            //pass the question list and get all the choices in question
             String[] choices = getChoices(randQuestion);
+
+            //shuffle / randomize all the choices
             String[] shuffledChoices = RandomizeHelper.choices(choices,choices.length);
 
-            userCurrentLife.setText(String.valueOf(life.setUserLife()));
 
+            //data binding
             questionClass  = new Question(
                     randQuestion.getId(),randQuestion.getQuest(),shuffledChoices[0],
-                    shuffledChoices[1],shuffledChoices[2],shuffledChoices[3]
+                    shuffledChoices[1],shuffledChoices[2],shuffledChoices[3],randQuestion.getFun_facts()
             );
 
+            //set the collected values
             categoryQuestionBinding.setQuestions(questionClass);
-            correctAnswer = randQuestion.getCorrect_answer();
-            funFacts = randQuestion.getFun_facts();
+
+            Check.correctAnswer(randQuestion.getCorrect_answer());
         }
 
     }
@@ -256,7 +272,6 @@ public class CategoryQuestion extends AppCompatActivity {
     private void displayResult(String correctOrWrong) {
         questionLayout.setVisibility(View.INVISIBLE);
         questionResult.setText("Result : " + correctOrWrong);
-        questionFunFacts.setText("Fun facts : " + funFacts);
         displayResult.setVisibility(View.VISIBLE);
         getQuestions();
         Toast.makeText(this, "Points : " + String.valueOf(p.getPoints()), Toast.LENGTH_SHORT).show();
@@ -268,22 +283,6 @@ public class CategoryQuestion extends AppCompatActivity {
         displayResult.setVisibility(View.INVISIBLE);
     }
 
-    private void timesUpCheck(RadioGroup RGroup)
-    {
-     /*   int selectedId = RGroup.getCheckedRadioButtonId();
-        radioButton = findViewById(selectedId);
-        String getResult = null;
-        if(selectedId <= -1) {
-            getResult = isCorrect("No Answer");
-            Toast.makeText(this, "Message Result : " + life.questionResult(getResult,userCurrentLife.getText().toString()), Toast.LENGTH_SHORT).show();
-        } else {
-            getResult = isCorrect(radioButton.getText().toString());
-
-        }
-        countDownTimer.cancel();
-        displayResult(getResult);
-        RGroup.clearCheck();*/
-    }
 
     //send the user status to the database using retrofit
     private void sendAnswer(String questionId, String result)
@@ -311,28 +310,6 @@ public class CategoryQuestion extends AppCompatActivity {
         });
     }
 
-    //check if correct or not
-    private String isCorrect(String selectedAnswer)
-    {
-        String result = null;
-        if(selectedAnswer.equals(correctAnswer.trim()))
-        {
-            result = "Correct";
-            p.setPoints(++userPoints);
-//            sendAnswer(questionId.getText().toString(),result);
-        }
-        else
-        {
-            result = "Wrong";
-            if( life.questionResult(result,userCurrentLife.getText().toString()).equals("Game over")) {
-                p.insertPoints(p.getPoints());
-                userPoints = 0;
-            }
-        }
-        return result;
-    }
-
-
     private  void startTimer(final long counter) {
        countDown = new CountDown(21000);
        if (!isCounterRunning) {
@@ -350,7 +327,7 @@ public class CategoryQuestion extends AppCompatActivity {
                @Override
                public void onFinish() {
                    isCounterRunning = false;
-//                   timesUpCheck(RGroup);
+                   Check.answer = "No answer";
                }
            };
            countDownTimer.start();

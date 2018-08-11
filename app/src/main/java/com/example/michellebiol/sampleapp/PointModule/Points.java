@@ -17,25 +17,31 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Points {
 
-    public int points = 0;
+    private int userPoints = 0;
     private Context context;
 
     public Points(Context context) {
         this.context = context;
     }
+    public Points(int points)
+    {
+        this.setPoints(points);
+    }
+
+    public Points(){}
 
     public int getPoints() {
-        return this.points;
+        return this.userPoints;
     }
 
     public void setPoints(int points) {
-        this.points = points * 100;
+        this.userPoints = points * 100;
     }
 
     public void insertPoints(int points)
     {
 
-        SharedPreferences sharedPref = context.getSharedPreferences("tokens", Context.MODE_PRIVATE);
+             SharedPreferences sharedPref = context.getSharedPreferences("tokens", Context.MODE_PRIVATE);
         String token_type = sharedPref.getString("token_type","");
         String token = sharedPref.getString("token","");
 
@@ -63,7 +69,6 @@ public class Points {
 
             }
         });
-
 
     }
 }

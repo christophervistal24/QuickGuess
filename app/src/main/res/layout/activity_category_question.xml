@@ -5,9 +5,10 @@
 
     <data>
         <import type="android.view.View"/>
+        <variable name="lifemodule" type="com.example.michellebiol.sampleapp.LifeModule.Life" />
         <variable name="countdown" type="com.example.michellebiol.sampleapp.TimerModule.CountDown"/>
         <variable name="questions" type="com.example.michellebiol.sampleapp.QuestionModule.Question" />
-        <variable name="handlers" type="com.example.michellebiol.sampleapp.Handlers.MyHandlers" />
+        <variable name="event" type="com.example.michellebiol.sampleapp.Handlers.MyEvents" />
     </data>
 
     <LinearLayout
@@ -30,7 +31,7 @@
                 android:layout_height="wrap_content" />
 
             <TextView
-                android:id="@+id/questionFunFacts"
+                android:text="@{questions.funFacts}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -67,15 +68,17 @@
                 />
 
             <TextView
+                android:id="@+id/userLife"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/userCurrentLife"/>
+                android:text="@={lifemodule.life}"
+                />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@{questions.questionId}"
-                android:id="@+id/questionId"/>
+              />
 
             <TextView
                 android:layout_width="match_parent"
@@ -86,7 +89,7 @@
             <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onCheckedChanged="@{handlers::onCustomCheckChanged}"
+                android:onCheckedChanged="@{event.onCustomCheckChanged}"
                 android:id="@+id/RGroup">
 
                 <RadioButton

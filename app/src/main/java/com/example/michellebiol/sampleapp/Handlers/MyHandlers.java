@@ -1,44 +1,26 @@
 package com.example.michellebiol.sampleapp.Handlers;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.SystemClock;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.example.michellebiol.sampleapp.CategoryQuestion;
-import com.example.michellebiol.sampleapp.R;
+import com.example.michellebiol.sampleapp.AnswerModule.Check;
+import com.example.michellebiol.sampleapp.AnswerModule.Correct;
+import com.example.michellebiol.sampleapp.LifeModule.Life;
 
-public class MyHandlers{
+public class MyHandlers {
 
-    public Activity activity;
-    private long mLastClickTime = 0;
+    private static long mLastClickTime = 0;
 
-    public MyHandlers(Activity activity) {
-        this.activity = activity;
-    }
 
-    public void onCustomCheckChanged(RadioGroup radio, int radioId)  {
-
-        avoidMultipleClick();
-        Log.d("Value" , getSelectedAnswer(radioId) );
-    }
-
-    private void avoidMultipleClick()
+    public static void avoidMultipleClick()
     {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return;
+
         }
          mLastClickTime = SystemClock.elapsedRealtime();
-    }
-
-    private String getSelectedAnswer(int checkedRadioId)
-    {
-        RadioButton selectedRadioValue = activity.findViewById(checkedRadioId);
-        return (String) selectedRadioValue.getText();
     }
 
 }

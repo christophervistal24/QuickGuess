@@ -12,16 +12,27 @@ public class Question   {
     public String choice_b;
     public String choice_c;
     public String choice_d;
+    public String funFacts;
 
-
-    public Question(String questionId, String question, String choice_a, String choice_b, String choice_c, String choice_d) {
+    public Question(String questionId, String question, String choice_a, String choice_b, String choice_c, String choice_d , String funFacts) {
         this.setQuestionId(questionId);
         this.setQuestion(question);
         this.setChoice_a(choice_a);
         this.setChoice_b(choice_b);
         this.setChoice_c(choice_c);
         this.setChoice_d(choice_d);
+        this.setFunFacts(funFacts);
+
     }
+
+    public String getFunFacts() {
+        return funFacts;
+    }
+
+    public void setFunFacts(String funFacts) {
+        this.funFacts = funFacts;
+    }
+
 
     public String getChoice_a() {
         return choice_a;

@@ -2,68 +2,39 @@ package com.example.michellebiol.sampleapp.LifeModule;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
+import android.databinding.Observable;
+import android.databinding.PropertyChangeRegistry;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.michellebiol.sampleapp.CategoryQuestion;
+import com.android.databinding.library.baseAdapters.BR;
 import com.example.michellebiol.sampleapp.Helpers.SharedPreferenceHelper;
-import com.example.michellebiol.sampleapp.PointModule.Points;
-import com.facebook.share.Share;
+import com.example.michellebiol.sampleapp.R;
 
-public class Life {
-    private int LIFE = 5;
+public class Life extends BaseObservable {
+    public static String life = "5";
     private Context context;
-    private SharedPreferences sharedPref;
-    private String messageResult;
-    private Points p;
+    private SharedPreferences sharedPreferences;
 
     public Life(Context context) {
-        SharedPreferenceHelper.PREF_FILE="user_life";
+        sharedPreferences = context.getSharedPreferences("user_life", Context.MODE_PRIVATE);
         this.context = context;
-        p = new Points(context);
     }
 
 
-    private boolean isGameOver(int playersLife)
-    {
-        CategoryQuestion categoryQuestion;
-        return playersLife == 1;
+    @Bindable
+    public String getLife() {
+       SharedPreferences.Editor editor = sharedPreferences.edit();
+       editor.putInt("life",Integer.parseInt(life));
+       editor.apply();
+       return life;
     }
 
-    public String questionResult(String question_result,String life)
-    {
-
-        if (!question_result.isEmpty()) {
-            messageResult = decrementLife(Integer.parseInt(life));
-        }
-        return messageResult;
+    public void setLife(String life) {
+        Life.life = life;
+        notifyPropertyChanged(BR.life);
     }
-
-    private String decrementLife(int playersLife)
-    {
-        if (isGameOver(playersLife)) {
-            SharedPreferenceHelper.setSharedPreferenceInt(context,"user_life",this.LIFE);
-           return "Game over";
-       } else {
-            playersLife--;
-            SharedPreferenceHelper.setSharedPreferenceInt(context,"user_life",playersLife);
-            return "-1 Life";
-        }
-    }
-
-    public int setUserLife()
-    {
-        if (isUserExists()) {
-            return SharedPreferenceHelper.getSharedPreferenceInt(context,"user_life",0);
-        } else {
-            SharedPreferenceHelper.setSharedPreferenceInt(context,"user_life",this.LIFE);
-            return this.LIFE;
-        }
-    }
-
-    private boolean isUserExists()
-    {
-        int userLife = SharedPreferenceHelper.getSharedPreferenceInt(context,"user_life",0);
-        return userLife != 0;
-    }
-
 }

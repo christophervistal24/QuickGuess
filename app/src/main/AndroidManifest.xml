@@ -21,25 +21,33 @@
 
         <activity
             android:name=".HomeActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".CategoriesActivity" />
-        <activity android:name=".CategoryQuestion" />
-        <activity android:name=".AnswerQuestion" />
-        <activity android:name=".AccountsActivity" />
+        <activity android:name=".RegisterActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".CategoriesActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".CategoryQuestion"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".AnswerQuestion"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".AccountsActivity"
+            android:screenOrientation="portrait"/>
 
         <provider
             android:name="com.facebook.FacebookContentProvider"
             android:authorities="com.facebook.app.FacebookContentProvider201329987230090"
             android:exported="true" />
 
-        <activity android:name=".RankingsActivity"></activity>
+        <activity android:name=".RankingsActivity"
+            android:screenOrientation="portrait"
+            ></activity>
     </application>
 
 </manifest>

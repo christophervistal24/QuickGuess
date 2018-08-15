@@ -2,6 +2,7 @@ package com.example.michellebiol.sampleapp.RegisterModule;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.HomeActivity;
@@ -19,6 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public  class RegisterUser {
     IRegisterUserApi services;
     private Context context;
+    private String id;
 
     public RegisterUser(Context context)
     {
@@ -40,6 +42,7 @@ public  class RegisterUser {
         registerUser.setAndroid_id(phone_info[0]);
         registerUser.setAndroid_mac(phone_info[1]);
         registerNewUser(registerUser);
+
     }
 
     public void registerNewUser(RegisterUserRequest registerUser)
@@ -70,6 +73,10 @@ public  class RegisterUser {
     {
         if(responseMessage != null && responseMessage.equals("Success"))
         {
+            SharedPreferences settings = context.getSharedPreferences(registerResponse.getId().concat("_life"), 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt("life",5);
+            editor.apply();
             HomeActivity.activityInstance().setToken(initializeTokens(registerResponse));
         } else {
             HomeActivity.activityInstance().openInputDialog();

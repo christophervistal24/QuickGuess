@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
+import com.example.michellebiol.sampleapp.Helpers.TokenUtil;
 import com.example.michellebiol.sampleapp.Interfaces.IUserPointsApi;
 import com.example.michellebiol.sampleapp.Models.Points.PointsRequest;
 import com.example.michellebiol.sampleapp.Models.Points.PointsResponse;
@@ -41,9 +42,8 @@ public class Points {
     public void insertPoints(int points)
     {
 
-        SharedPreferences sharedPref = context.getSharedPreferences("tokens", Context.MODE_PRIVATE);
-        String token_type = sharedPref.getString("token_type","");
-        String token = sharedPref.getString("token","");
+        String token_type = TokenUtil.getTokenType(this.context);
+        String token = TokenUtil.getToken(this.context);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(context.getString(R.string.user_api_url))

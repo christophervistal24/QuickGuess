@@ -95,6 +95,7 @@ public class AccountsActivity extends AppCompatActivity implements IPhoneInfo {
                             a.getUser().getUsername() , a.getUser().getId()
 
                     );
+
                     accountsItems.add(accountsItem);
                 }
 

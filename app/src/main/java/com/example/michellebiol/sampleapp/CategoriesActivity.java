@@ -32,6 +32,8 @@ public class CategoriesActivity extends AppCompatActivity {
     ICategoriesApi service;
     CategoryList categoryList;
     protected static CategoriesActivity instance;
+    Life life;
+    SharedPreferences sharedPreferences;
 
 
     @Override
@@ -39,7 +41,6 @@ public class CategoriesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_categories);
         categoryList = new CategoryList(this , service, (RecyclerView) findViewById(R.id.recyclerView));
+        life = new Life(this);
     }
-
-
 }

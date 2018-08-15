@@ -9,6 +9,7 @@ import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -33,6 +34,8 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     ActivityHomeBinding homeBinding;
     SharedPreferences sharedPreferences;
     String lifeOfUser;
+    String user_id;
+    String life_value;
 
 
 
@@ -42,18 +45,12 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         homeBinding = DataBindingUtil.setContentView(this,R.layout.activity_home);
         instance = this;
         hideNavigationBar();
-        isTokenAlreadySet();
         life = new Life(this);
+        isTokenAlreadySet();
         detector =  new ConnectionDetector(this);
         registerObject  = new RegisterUser(this);
         detector.checkConnection();
-
-        sharedPreferences = getSharedPreferences("user_life",0);
-        lifeOfUser = String.valueOf(sharedPreferences.getInt("life",5));
-        life.setLife(lifeOfUser);
-        homeBinding.userLife.setText(lifeOfUser);
-
-    }
+       }
 
 
     @Override
@@ -61,12 +58,13 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     {
         if(detector.checkConnection())
         {
-            life.setLife(String.valueOf(sharedPreferences.getInt("life",5)));
-            homeBinding.userLife.setText(String.valueOf(sharedPreferences.getInt("life",5)));
-//            Toast.makeText(this, "User is connected", Toast.LENGTH_SHORT).show();
-        } else
-        {
-    // action if the user has no internet connection
+            if (sharedPreferences != null){
+                life.setLife(String.valueOf(sharedPreferences.getInt("life",5)));
+                homeBinding.userLife.setText(String.valueOf(sharedPreferences.getInt("life",5)));
+            } else {
+                life.setLife(Life.life);
+                homeBinding.userLife.setText(Life.life);
+            }
         }
         super.onResume();
         hideNavigationBar();
@@ -145,11 +143,19 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     {
         SharedPreferenceHelper.PREF_FILE = "tokens";
         String token = SharedPreferenceHelper.getSharedPreferenceString(this,"token",null);
-        if (token == null)
+        user_id = SharedPreferenceHelper.getSharedPreferenceString(this,"user_id",null);
+        if (token == null && user_id == null)
         {
             openInputDialog();
+        } else {
+            sharedPreferences = getSharedPreferences(user_id+"_life",0);
+            life_value = String.valueOf(sharedPreferences.getInt("life",5));
+            lifeOfUser = life_value;
+            Life.life = lifeOfUser;
+            homeBinding.userLife.setText(lifeOfUser);
         }
     }
+
 
     @Override
     public String[] getPhoneInfo()

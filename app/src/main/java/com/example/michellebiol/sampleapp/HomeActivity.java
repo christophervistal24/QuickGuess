@@ -39,6 +39,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,7 +127,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         }
     }
 
-    private boolean isFieldsAreEmpty(String txtPlayerName , String txtQuestion, String txtQuestionAnswer)
+    public boolean isFieldsAreEmpty(String txtPlayerName , String txtQuestion, String txtQuestionAnswer)
     {
         return txtPlayerName.isEmpty() || txtQuestion.isEmpty() || txtQuestionAnswer.isEmpty();
     }
@@ -148,6 +149,10 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         {
             openInputDialog();
         } else {
+            //TODO add some authentication for user
+
+
+            //TODO create an life util.
             sharedPreferences = getSharedPreferences(user_id+"_life",0);
             life_value = String.valueOf(sharedPreferences.getInt("life",5));
             lifeOfUser = life_value;

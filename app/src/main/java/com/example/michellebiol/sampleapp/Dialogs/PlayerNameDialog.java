@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,7 +63,7 @@ public class PlayerNameDialog extends AppCompatDialogFragment{
         spinnerQuestion.setAdapter(adapter);
 
         builder.setView(view)
-                .setTitle("Player name")
+                .setTitle("Create an account")
                 .setNegativeButton("Access my accounts", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -84,6 +86,17 @@ public class PlayerNameDialog extends AppCompatDialogFragment{
                 });
         editUsername = view.findViewById(R.id.editUsername);
         return builder.create();
+    }
+
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        try {
+            FragmentTransaction ft = manager.beginTransaction();
+            ft.add(this, tag);
+            ft.commit();
+        } catch (IllegalStateException e) {
+            Log.d("ABSDIALOGFRAG", "Exception", e);
+        }
     }
 
     private void getRegisterQuestions()

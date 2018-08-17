@@ -21,10 +21,12 @@ import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.AccountsActivity;
 import com.example.michellebiol.sampleapp.CategoriesActivity;
+import com.example.michellebiol.sampleapp.HomeActivity;
 import com.example.michellebiol.sampleapp.Interfaces.IRegisterQuestionApi;
 import com.example.michellebiol.sampleapp.Interfaces.IRegisterUserApi;
 import com.example.michellebiol.sampleapp.Models.RegisterQuestionResponse;
 import com.example.michellebiol.sampleapp.R;
+import com.example.michellebiol.sampleapp.RegisterActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +45,7 @@ public class PlayerNameDialog extends AppCompatDialogFragment{
     private String question;
     IRegisterQuestionApi services;
     ArrayList<String> questionList;
+    public static boolean shown = false;
 
 
     @Override
@@ -51,7 +54,7 @@ public class PlayerNameDialog extends AppCompatDialogFragment{
         //initialize get request for API
         getRegisterQuestions();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_dialog,null);
 
@@ -67,7 +70,7 @@ public class PlayerNameDialog extends AppCompatDialogFragment{
                 .setNegativeButton("Access my accounts", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent  = new Intent(getContext(),AccountsActivity.class);
+                        Intent intent  = new Intent(getContext(),RegisterActivity.class);
                         startActivity(intent);
                     }
                 })
@@ -94,9 +97,16 @@ public class PlayerNameDialog extends AppCompatDialogFragment{
             FragmentTransaction ft = manager.beginTransaction();
             ft.add(this, tag);
             ft.commit();
+            shown =  true;
         } catch (IllegalStateException e) {
-            Log.d("ABSDIALOGFRAG", "Exception", e);
+            Log.d("Message ", "Exception", e);
         }
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        shown = false;
+        super.onDismiss(dialog);
     }
 
     private void getRegisterQuestions()

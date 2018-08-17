@@ -74,7 +74,7 @@ public class AccountsAdapter  extends RecyclerView.Adapter<AccountsAdapter.ViewH
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             loginRequest(accountsItem.getUsername());
-                            //get the life of the user in the shared preferences
+
                         }
                     });
                     alertBuilder.setNegativeButton("Choose again", new DialogInterface.OnClickListener() {

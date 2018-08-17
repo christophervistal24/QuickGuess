@@ -1,18 +1,20 @@
 package com.example.michellebiol.sampleapp;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.michellebiol.sampleapp.Interfaces.IRegisterUserApi;
-import com.example.michellebiol.sampleapp.Models.RegisterUserRequest;
-import com.example.michellebiol.sampleapp.Models.RegisterUserResponse;
-import com.example.michellebiol.sampleapp.Models.TokenRequest;
-import com.example.michellebiol.sampleapp.Models.TokenResponse;
+import com.example.michellebiol.sampleapp.Interfaces.IRegisterQuestionApi;
+import com.example.michellebiol.sampleapp.Models.RegisterQuestionResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,77 +24,104 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    Button btnUserSignUp;
-    EditText userEmail;
-    EditText userUsername;
-    EditText userPassword;
-    EditText confirmPassword;
-    IRegisterUserApi services;
+    IRegisterQuestionApi services;
+    ArrayList<String> questionList;
+    private EditText userUsername;
+    private EditText userQuestionAnswer;
+    private Spinner spinnerQuestion;
+    private int checkSum = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
-        userEmail = (EditText) findViewById(R.id.userEmail);
+        getRegisterQuestions();
+        spinnerQuestion = (Spinner) findViewById(R.id.spinnerQuestions);
         userUsername = (EditText) findViewById(R.id.userUsername);
-        userPassword = (EditText) findViewById(R.id.userPassword);
-        confirmPassword = (EditText) findViewById(R.id.confirmPassword);
+        userQuestionAnswer = (EditText) findViewById(R.id.userQuestionAnswer);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, questionList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerQuestion.setAdapter(adapter);
+    }
 
 
+    private void getRegisterQuestions() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.user_api_url))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+        services = retrofit.create(IRegisterQuestionApi.class);
 
-        services = retrofit.create(IRegisterUserApi.class);
-    }
+        questionList = new ArrayList<>();
+        questionList.add("Please choose a question…");
 
-    public void register(View v) {
-        if (passwordConfirmation(userPassword.getText().toString(), confirmPassword.getText().toString())) {
-            final RegisterUserRequest registerUser = new RegisterUserRequest();
+        Call<List<RegisterQuestionResponse>> registerQuestionResponseCall = services.getQuestions();
+        registerQuestionResponseCall.enqueue(new Callback<List<RegisterQuestionResponse>>() {
+            @Override
+            public void onResponse(Call<List<RegisterQuestionResponse>> call, Response<List<RegisterQuestionResponse>> response) {
+                List<RegisterQuestionResponse> questions = response.body();
 
-            registerUser.setUsername(userUsername.getText().toString());
-//            registerUser.setEmail(userEmail.getText().toString());
-            registerUser.setPassword(userPassword.getText().toString());
-
-
-            Call<RegisterUserResponse> registerUserResponseCall = services.newUser(registerUser);
-            registerUserResponseCall.enqueue(new Callback<RegisterUserResponse>() {
-                @Override
-                public void onResponse(Call<RegisterUserResponse> call, Response<RegisterUserResponse> response) {
-
-                    if (passwordConfirmation(userPassword.getText().toString(), confirmPassword.getText().toString())) {
-                        if (response.isSuccessful()) {
-                            RegisterUserResponse registerUserResponse = response.body();
-                            Toast.makeText(RegisterActivity.this, registerUserResponse.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(RegisterActivity.this, "Password did not match", Toast.LENGTH_SHORT).show();
+                if (questions != null && response.isSuccessful()) {
+                    for (RegisterQuestionResponse q : questions) {
+                        questionList.add(q.getQuestion());
                     }
-
-
                 }
+            }
 
-                @Override
-                public void onFailure(Call<RegisterUserResponse> call, Throwable t) {
-                    Toast.makeText(RegisterActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            Toast.makeText(RegisterActivity.this, "Password not match", Toast.LENGTH_SHORT).show();
-        }
+            @Override
+            public void onFailure(Call<List<RegisterQuestionResponse>> call, Throwable t) {
 
-
+            }
+        });
     }
 
-    private boolean passwordConfirmation(String password, String retypePassword) {
-        if (password.equals(retypePassword)) {
-            return true;
+    private boolean isUsernameEmpty(EditText username)
+    {
+        return username.getText().toString().trim().length() <= 0;
+    }
+
+    private boolean isAnswerEmpty(EditText answer)
+    {
+        return answer.getText().toString().trim().length() <= 0;
+    }
+
+    private boolean isSelectQuestionEmpty(Spinner selectQuestion)
+    {
+        return selectQuestion.getSelectedItem().toString().equalsIgnoreCase("Please choose a question…");
+    }
+
+    public void retrieveAllAcounts(View v)
+    {
+        checkSum = 0;
+        if  (isUsernameEmpty(userUsername))
+        {
+            userUsername.setError("Please provide some username");
         } else {
-            return false;
+            checkSum+=1;
+        }
+        if (isSelectQuestionEmpty(spinnerQuestion))
+        {
+            ((TextView)spinnerQuestion.getSelectedView()).setError("Please select question");
+        } else {
+            checkSum+=1;
+        }
+        if  (isAnswerEmpty(userQuestionAnswer))
+        {
+            userQuestionAnswer.setError("Please provide some answer");
+        } else {
+            checkSum +=1;
         }
 
+        isPassed(checkSum);
     }
+
+    private void isPassed(int checkSum) {
+        if (checkSum >= 3) {
+            Toast.makeText(this, "Passed!", Toast.LENGTH_SHORT).show();
+        } else {
+            return;
+        }
+    }
+
 
 }

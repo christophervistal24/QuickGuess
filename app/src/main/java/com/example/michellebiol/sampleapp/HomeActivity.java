@@ -11,21 +11,17 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.michellebiol.sampleapp.Detector.ConnectionDetector;
 import com.example.michellebiol.sampleapp.Dialogs.PlayerNameDialog;
 import com.example.michellebiol.sampleapp.Helpers.SharedPreferenceHelper;
 import com.example.michellebiol.sampleapp.Interfaces.IPhoneInfo;
-import com.example.michellebiol.sampleapp.Interfaces.IRegisterUserApi;
 import com.example.michellebiol.sampleapp.LifeModule.Life;
 import com.example.michellebiol.sampleapp.RegisterModule.RegisterUser;
-import com.example.michellebiol.sampleapp.databinding.ActivityCategoryQuestionBinding;
 import com.example.michellebiol.sampleapp.databinding.ActivityHomeBinding;
 
-public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo{
+public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.PlayerNameDialogListener,IPhoneInfo {
 
     ConnectionDetector detector;
     RegisterUser registerObject;
@@ -36,8 +32,6 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     String lifeOfUser;
     String user_id;
     String life_value;
-
-
 
 
     @Override
@@ -57,6 +51,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     @Override
     protected void onResume()
     {
+        openInputDialog();
         if(detector.checkConnection())
         {
             if (sharedPreferences != null){
@@ -105,10 +100,13 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
 
     public void openInputDialog()
     {
-        PlayerNameDialog playerNameDialog = new PlayerNameDialog();
-        playerNameDialog.setCancelable(false);
-        playerNameDialog.show(getSupportFragmentManager(),"Example Dialog");
+       if (!PlayerNameDialog.shown){
+           PlayerNameDialog playerNameDialog = new PlayerNameDialog();
+           playerNameDialog.setCancelable(false);
+           playerNameDialog.show(getSupportFragmentManager(),"Sign up Dialog");
+       }
     }
+
 
     public static HomeActivity activityInstance()
     {
@@ -169,4 +167,6 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         return new String[]{Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID) , wm.getConnectionInfo().getMacAddress()};
     }
+
+
 }

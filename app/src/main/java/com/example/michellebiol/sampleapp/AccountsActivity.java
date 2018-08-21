@@ -142,7 +142,6 @@ public class AccountsActivity extends AppCompatActivity implements PlayerNameDia
     {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         PlayerNameDialog playerNameDialog = new PlayerNameDialog();
-        playerNameDialog.setCancelable(false);
         playerNameDialog.show(ft,"Example Dialog");
     }
 

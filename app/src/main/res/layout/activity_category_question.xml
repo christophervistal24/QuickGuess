@@ -30,6 +30,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+
+            <ImageView
+                android:id="@+id/funFactsImg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+            />
+
             <TextView
                 android:text="@{questions.funFacts}"
                 android:layout_width="match_parent"
@@ -90,7 +98,7 @@
             <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onCheckedChanged="@{event.onCustomCheckChanged}"
+                android:onCheckedChanged="@{event::onCustomCheckChanged}"
                 android:id="@+id/RGroup">
 
                 <RadioButton

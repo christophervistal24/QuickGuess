@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="username">Your username</string>
+    <string name="proceed">Proceed</string>
+    <string name="get_your_account">Get your account</string>
+    <string name="who_is_your_first_crush">Who is your first crush?</string>
+</resources>

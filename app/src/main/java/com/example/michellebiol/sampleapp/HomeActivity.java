@@ -6,8 +6,11 @@ import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +35,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     String lifeOfUser;
     String user_id;
     String life_value;
+    Toolbar toolbar;
 
 
     @Override
@@ -49,9 +53,11 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
 
 
     @Override
-    protected void onResume()
-    {
-        openInputDialog();
+    protected void onResume() {
+        if(!PlayerNameDialog.shown)
+        {
+            isTokenAlreadySet();
+        }
         if(detector.checkConnection())
         {
             if (sharedPreferences != null){
@@ -117,6 +123,7 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
     public void applyText(String playerName,String question , String questionAnswer) {
         if (isFieldsAreEmpty(playerName,question,questionAnswer))
         {
+            PlayerNameDialog.shown = false;
             openInputDialog();
         } else {
             String[] p_info = getPhoneInfo();
@@ -143,13 +150,12 @@ public class HomeActivity extends AppCompatActivity implements PlayerNameDialog.
         SharedPreferenceHelper.PREF_FILE = "tokens";
         String token = SharedPreferenceHelper.getSharedPreferenceString(this,"token",null);
         user_id = SharedPreferenceHelper.getSharedPreferenceString(this,"user_id",null);
-        if (token == null && user_id == null)
+        if (token == null || user_id == null)
         {
+            PlayerNameDialog.shown = false;
             openInputDialog();
         } else {
             //TODO add some authentication for user
-
-
             //TODO create an life util.
             sharedPreferences = getSharedPreferences(user_id+"_life",0);
             life_value = String.valueOf(sharedPreferences.getInt("life",5));

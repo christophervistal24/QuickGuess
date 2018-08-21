@@ -1,7 +1,16 @@
 <resources>
     <string name="app_name">Quick Guess</string>
-    <string name="user_api_url">http://192.168.1.14:80/</string>
+    <string name="user_api_url">http://192.168.1.11:80/</string>
     <string name="facebook_app_id">201329987230090</string>
     <string name="facebook_login_protocol_scheme">fb201329987230090</string>
     <string name="user_default_life">5</string>
+    <string name="next" />
+    <string name="skip" />
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="username">Your username</string>
+    <string name="proceed">Proceed</string>
+    <string name="get_your_account">Get your account</string>
+    <string name="who_is_your_first_crush">Who is your first crush?</string>
 </resources>

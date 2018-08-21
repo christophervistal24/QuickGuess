@@ -14,6 +14,9 @@ public class Question   {
     public String choice_d;
     public String funFacts;
 
+
+
+
     public Question(String questionId, String question, String choice_a, String choice_b, String choice_c, String choice_d , String funFacts) {
         this.setQuestionId(questionId);
         this.setQuestion(question);
@@ -22,6 +25,7 @@ public class Question   {
         this.setChoice_c(choice_c);
         this.setChoice_d(choice_d);
         this.setFunFacts(funFacts);
+
 
     }
 
@@ -82,4 +86,7 @@ public class Question   {
     public void setQuestionId(String questionId) {
         this.questionId = questionId;
     }
+
+
+
 }

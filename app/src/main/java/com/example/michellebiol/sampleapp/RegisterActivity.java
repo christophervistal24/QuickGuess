@@ -1,20 +1,18 @@
 package com.example.michellebiol.sampleapp;
 
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.michellebiol.sampleapp.Interfaces.IRegisterQuestionApi;
-import com.example.michellebiol.sampleapp.Models.RegisterQuestionResponse;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.michellebiol.sampleapp.Handlers.MyHandlers;
+import com.example.michellebiol.sampleapp.Interfaces.IGetUserRegisterQuestionApi;
+import com.example.michellebiol.sampleapp.Interfaces.IUsernameApi;
+import com.example.michellebiol.sampleapp.Models.GetUserRegisterQuestionResponse;
+import com.example.michellebiol.sampleapp.Models.UsernameResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,54 +20,45 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+
 public class RegisterActivity extends AppCompatActivity {
 
-    IRegisterQuestionApi services;
-    ArrayList<String> questionList;
     private EditText userUsername;
-    private EditText userQuestionAnswer;
-    private Spinner spinnerQuestion;
-    private int checkSum = 0;
-
+    IUsernameApi iUsernameApi;
+    IGetUserRegisterQuestionApi iGetUserRegisterQuestionApi;
+    Bundle bundle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        getRegisterQuestions();
-        spinnerQuestion = (Spinner) findViewById(R.id.spinnerQuestions);
         userUsername = (EditText) findViewById(R.id.userUsername);
-        userQuestionAnswer = (EditText) findViewById(R.id.userQuestionAnswer);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, questionList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerQuestion.setAdapter(adapter);
-    }
-
-
-    private void getRegisterQuestions() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.user_api_url))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        services = retrofit.create(IRegisterQuestionApi.class);
+        iUsernameApi = retrofit.create(IUsernameApi.class);
+        bundle = new Bundle();
+    }
 
-        questionList = new ArrayList<>();
-        questionList.add("Please choose a question…");
 
-        Call<List<RegisterQuestionResponse>> registerQuestionResponseCall = services.getQuestions();
-        registerQuestionResponseCall.enqueue(new Callback<List<RegisterQuestionResponse>>() {
+    private void getUserRegisterQuestion(int user_id, final FragmentTransaction fragmentTransaction, final usernameFragment f1)
+    {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.user_api_url))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        iGetUserRegisterQuestionApi = retrofit.create(IGetUserRegisterQuestionApi.class);
+        Call<GetUserRegisterQuestionResponse> call = iGetUserRegisterQuestionApi.getRegisterQuestion(user_id);
+        call.enqueue(new Callback<GetUserRegisterQuestionResponse>() {
             @Override
-            public void onResponse(Call<List<RegisterQuestionResponse>> call, Response<List<RegisterQuestionResponse>> response) {
-                List<RegisterQuestionResponse> questions = response.body();
-
-                if (questions != null && response.isSuccessful()) {
-                    for (RegisterQuestionResponse q : questions) {
-                        questionList.add(q.getQuestion());
-                    }
-                }
+            public void onResponse(Call<GetUserRegisterQuestionResponse> call, Response<GetUserRegisterQuestionResponse> response) {
+                bundle.putString("user_question",response.body().getQuestion());
+                f1.setArguments(bundle);
+                fragmentTransaction.commit();
             }
 
             @Override
-            public void onFailure(Call<List<RegisterQuestionResponse>> call, Throwable t) {
+            public void onFailure(Call<GetUserRegisterQuestionResponse> call, Throwable t) {
 
             }
         });
@@ -85,43 +74,46 @@ public class RegisterActivity extends AppCompatActivity {
         return answer.getText().toString().trim().length() <= 0;
     }
 
-    private boolean isSelectQuestionEmpty(Spinner selectQuestion)
-    {
-        return selectQuestion.getSelectedItem().toString().equalsIgnoreCase("Please choose a question…");
-    }
-
     public void retrieveAllAcounts(View v)
     {
-        checkSum = 0;
-        if  (isUsernameEmpty(userUsername))
+        Call<UsernameResponse> call = iUsernameApi.getCheckResult(userUsername.getText().toString());
+        if (isUsernameEmpty(userUsername))
         {
-            userUsername.setError("Please provide some username");
+            userUsername.setError("Please provide valid username / playername");
         } else {
-            checkSum+=1;
-        }
-        if (isSelectQuestionEmpty(spinnerQuestion))
-        {
-            ((TextView)spinnerQuestion.getSelectedView()).setError("Please select question");
-        } else {
-            checkSum+=1;
-        }
-        if  (isAnswerEmpty(userQuestionAnswer))
-        {
-            userQuestionAnswer.setError("Please provide some answer");
-        } else {
-            checkSum +=1;
-        }
+            call.enqueue(new Callback<UsernameResponse>() {
+                @Override
+                public void onResponse(Call<UsernameResponse> call, Response<UsernameResponse> response) {
+                    if  (response.isSuccessful())
+                    {
+                        if (response.body() != null) {
+                            if (Boolean.valueOf(response.body().getFound())){
 
-        isPassed(checkSum);
+                                bundle.putInt("user_id",response.body().getId());
+                                bundle.putString("username",userUsername.getText().toString());
+
+                                FragmentManager fragmentManager = getSupportFragmentManager();
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                usernameFragment f1 = new usernameFragment();
+                                fragmentTransaction.setCustomAnimations(R.anim.enter_from_right,R.anim.exit_to_right,R.anim.enter_from_right,R.anim.exit_to_right);
+                                fragmentTransaction.addToBackStack(null);
+                                fragmentTransaction.add(R.id.fragment_one,f1);
+                                getUserRegisterQuestion(response.body().getId(),fragmentTransaction , f1);
+                            } else {
+                                userUsername.setError("Invalid username / playername");
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<UsernameResponse> call, Throwable t) {
+
+                }
+            });
+
+
+        }
     }
-
-    private void isPassed(int checkSum) {
-        if (checkSum >= 3) {
-            Toast.makeText(this, "Passed!", Toast.LENGTH_SHORT).show();
-        } else {
-            return;
-        }
-    }
-
 
 }

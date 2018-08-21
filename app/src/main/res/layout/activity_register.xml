@@ -14,43 +14,40 @@
         android:scaleType="fitXY"
         android:src="@drawable/bg_plane"/>
 
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical" >
 
-        <EditText
-            android:hint="Your username"
-            android:id="@+id/userUsername"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-           />
 
-        <Spinner
-            android:id="@+id/spinnerQuestions"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
 
         <EditText
-            android:hint="Question answer"
-            android:id="@+id/userQuestionAnswer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
+              android:hint="Your username"
+              android:id="@+id/userUsername"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="20dp"
+             />
 
-        <Button
+    <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:onClick = "retrieveAllAcounts"
-            android:text="Get accounts"
+            android:text="Proceed"
             android:id="@+id/btnUserSignUp"/>
 
     </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_one"
+        >
+    </FrameLayout>
 
 
 

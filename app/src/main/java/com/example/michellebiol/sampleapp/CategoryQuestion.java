@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -45,6 +46,7 @@ import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareHashtag;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +74,7 @@ public class CategoryQuestion extends AppCompatActivity {
     CountDown countDown;
     public ActivityCategoryQuestionBinding categoryQuestionBinding;
     Question questionClass;
-
+    ImageView funFactsImg;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +83,7 @@ public class CategoryQuestion extends AppCompatActivity {
         p = new Points(this);
         categoryQuestionBinding.setLifemodule(life);
         startTimer(counter);
-
+        funFactsImg = (ImageView) findViewById(R.id.funFactsImg);
 
         btnNext = findViewById(R.id.btnNext);
         btnShareOnFB = findViewById(R.id.btnShareOnFB);
@@ -190,7 +192,7 @@ public class CategoryQuestion extends AppCompatActivity {
                     QuestionsItem questionsItem = new QuestionsItem(
                             q.getId(),q.getQuestion(),q.getQuestion_categories_id(),
                             q.getChoice_a(),q.getChoice_b(),q.getChoice_c(),q.getChoice_d(),q.getCorrect_answer(),
-                            q.getFun_facts(),q.getQuestion_result());
+                            q.getFun_facts(),q.getQuestion_result(),q.getFun_facts_image());
                     questionsItems.add(questionsItem);
                 }
 
@@ -252,6 +254,8 @@ public class CategoryQuestion extends AppCompatActivity {
                     randQuestion.getId(),randQuestion.getQuest(),shuffledChoices[0],
                     shuffledChoices[1],shuffledChoices[2],shuffledChoices[3],randQuestion.getFun_facts()
             );
+            //set funfacts image
+            Picasso.with(this).load(getString(R.string.user_api_url).concat(randQuestion.getFun_facts_image())).into(funFactsImg);
 
             //set the collected values
             categoryQuestionBinding.setQuestions(questionClass);
@@ -274,7 +278,7 @@ public class CategoryQuestion extends AppCompatActivity {
 
     private void displayNewQuestion() {
         categoryQuestionBinding.questionLayout.setVisibility(View.VISIBLE);
-        categoryQuestionBinding.displayResult.setVisibility(View.INVISIBLE);
+        categoryQuestionBinding.displayResult.setVisibility(View.GONE);
     }
 
 
@@ -321,7 +325,7 @@ public class CategoryQuestion extends AppCompatActivity {
                public void onFinish() {
                    isCounterRunning = false;
                    Check.answer = "No answer";
-                   Result.questionResult(Check.checkAnswer(CategoryQuestion.this));
+                   displayQuestionResult();
                    categoryQuestionBinding.setLifemodule(life);
                }
            };

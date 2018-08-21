@@ -11,8 +11,9 @@ public class QuestionsResponse {
     private String correct_answer;
     private String fun_facts;
     private String question_result;
+    private String fun_facts_image;
 
-    public QuestionsResponse(String id, String question, String question_categories_id, String choice_a, String choice_b, String choice_c, String choice_d, String correct_answer , String fun_facts , String question_result) {
+    public QuestionsResponse(String id, String question, String question_categories_id, String choice_a, String choice_b, String choice_c, String choice_d, String correct_answer , String fun_facts , String question_result,String fun_facts_image) {
         this.id = id;
         this.question = question;
         this.question_categories_id = question_categories_id;
@@ -23,6 +24,7 @@ public class QuestionsResponse {
         this.correct_answer = correct_answer;
         this.fun_facts = fun_facts;
         this.question_result = question_result;
+        this.fun_facts_image = fun_facts_image;
     }
 
     public String getId() {
@@ -64,4 +66,6 @@ public class QuestionsResponse {
     public String getQuestion_result() {
         return question_result;
     }
+
+    public String getFun_facts_image() {return fun_facts_image;}
 }
